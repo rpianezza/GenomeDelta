@@ -15,7 +15,7 @@ output_folder="$3"
 mkdir -p "$output_folder"
 
 # Run samtools depth
-#samtools depth -a "$input_bam" > "$output_folder/coverage.bedgraph"
+samtools depth -a "$input_bam" > "$output_folder/coverage.bedgraph"
 
 # Filter for low coverage
 awk '$3 < 2' "$output_folder/coverage.bedgraph" > "$output_folder/low_coverage.bedgraph"
@@ -32,7 +32,7 @@ awk '($3 - $2) >= 1000' "$output_folder/low_coverage_merged.bed" > "$output_fold
 # Extract FASTA sequences
 bedtools getfasta -fi "$assembly" -bed "$output_folder/unmapped.bed" -fo "$output_folder/unmapped.fasta"
 
-#rm "$output_folder/coverage.bedgraph"
-#rm "$output_folder/low_coverage.bedgraph"
-#rm "$output_folder/low_coverage.bed"
-#rm "$output_folder/low_coverage_merged.bed"
+rm "$output_folder/coverage.bedgraph"
+rm "$output_folder/low_coverage.bedgraph"
+rm "$output_folder/low_coverage.bed"
+rm "$output_folder/low_coverage_merged.bed"
