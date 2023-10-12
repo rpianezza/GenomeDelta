@@ -13,7 +13,7 @@ mapped_folder=$3
 thr=$4
 
 # Check if the folder exists
-if [ ! -d "$fastq" ]; then
+if [ ! -f "$fastq" ]; then
   echo "Fastq file does not exist: $fastq_file"
   exit 1
 fi
