@@ -1,7 +1,7 @@
 GenomeDelta - Walkthrough
 ================
 
-## Purpose of GenomeDelta
+# Purpose of GenomeDelta
 
 **GenomeDelta** is a software designed to unravel the mysteries of
 genome evolution in a species. By comparing an older genome (in FASTQ
@@ -17,7 +17,7 @@ reference library of transposons to identify the novel invaders.
 Reference libraries are often incomplete and hard to build, especially
 for non-model species.
 
-## Set the GenomeDelta conda environment
+# Set the GenomeDelta conda environment
 
 First, you need to create the **conda environment** to install all the
 necessary packages. Use the `set-env.yml` file.
@@ -28,7 +28,7 @@ Then, before calling GenomeDelta, activate the environment:
 
     conda activate GenomeDelta
 
-## Call GenomeDelta
+# Call GenomeDelta
 
 After you are sure to be into the GenomeDelta conda environment, you can
 call the main script. Example call in the UNIX command line:
@@ -96,7 +96,7 @@ For **BAM** (sorted):
 These commands will generate a separate folder for each of the input
 files.
 
-## Output files
+# Output files
 
 - `unmapped.fasta` -\> FASTA containing all the sequences with coverage
   lower than `--min_cov` (default = 2) and longer than `--min_len`
@@ -123,7 +123,7 @@ files.
   - the **consensus** sequence of the cluster, then concatenated with
     the other consensus into the **candidates.fasta** output.
 
-## Step-by-step explanation of GenomeDelta’s workflow
+# Step-by-step explanation of GenomeDelta’s workflow
 
 1)  Mapping the FASTQ old genome to the FASTA recent assembly (tools:
     `bwa-mem`).
