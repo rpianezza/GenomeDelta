@@ -1,0 +1,13 @@
+name: GenomeDelta
+channels:
+  - bioconda
+  - conda-forge
+  - r
+  - defaults
+dependencies:
+  - python=3.9.18
+  - samtools=1.17
+  - bedtools=2.30.0
+  - bwa=0.7.17
+  - blast=2.6.0
+  - muscle=3.8.1551

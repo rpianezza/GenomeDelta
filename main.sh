@@ -1,20 +1,58 @@
 #!/bin/bash
 
+# Set default values for optional arguments
+d=100 # maximum distance accepted for a gap between 2 low coverage sequences
+min_cov=2 # minimum coverage of a position to be considered NON low coverage (in this case, only cov=0 or cov=1 are included in low coverages)
+min_len=1000 # minimum length for a low-coverage sequence to be included in the output
+
+# Initialize variables
+fastq_set=0
+bam_set=0
+
+# Parse command line options
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --fq) 
+            fastq="$2"; 
+            fastq_set=1; 
+            shift 
+            ;;
+        --bam)
+            bam="$2"; 
+            bam_set=1; 
+            shift 
+            ;;
+        --fa) assembly="$2"; shift ;;
+        --of) mapped_folder="$2"; shift ;;
+        --t) thr="$2"; shift ;;
+        --d) d="$2"; shift ;;
+        --min_cov) min_cov="$2"; shift ;;
+        --min_len) min_len="$2"; shift;;
+        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+done
+
+# Check mutual exclusivity
+if [[ $fastq_set -eq 1 && $bam_set -eq 1 ]]; then
+    echo "Error: You can only specify either --fq or --bam, not both."
+    exit 1
+fi
+
 # Check if the correct number of arguments is provided
-if [ $# -ne 4 ]; then
-  echo "Usage: $0 <fastq_file> <assembly> <mapped_folder> <threads>"
+if { [ -z "$fastq" ] && [ -z "$bam" ]; } || [ -z "$assembly" ] || [ -z "$mapped_folder" ] || [ -z "$thr" ]; then
+  echo "Usage: $0 (--fq <fastq_file> | --bam <bam_file>) --fa <assembly> --of <mapped_folder> --t <threads> [--d <value>] [--min_cov <value>]"
   exit 1
 fi
 
-# Assign the input arguments to variables
-fastq=$1
-assembly=$2
-mapped_folder=$3
-thr=$4
+# Check if either fastq or bam file exists
+if [ ! -z "$fastq" ] && [ ! -f "$fastq" ]; then
+  echo "Fastq file does not exist: $fastq"
+  exit 1
+fi
 
-# Check if the folder exists
-if [ ! -f "$fastq" ]; then
-  echo "Fastq file does not exist: $fastq_file"
+if [ ! -z "$bam" ] && [ ! -f "$bam" ]; then
+  echo "Bam file does not exist: $bam"
   exit 1
 fi
 
@@ -24,42 +62,62 @@ if [ ! -f "$assembly" ]; then
   exit 1
 fi
 
-# Extract the file name without the extension
-filename=$(basename "$fastq" .fastq.gz)
+# Check if the output folder exists and create it if negative
+if [ ! -d "$mapped_folder" ]; then
+    mkdir -p "$mapped_folder"
+fi
+
+# Get the directory path of the main script
+current_dir=$(dirname "$(readlink -f "$0")")
 
 # Run BWA-MEM to map fastq to fasta
-bwa mem -t "${thr}" "${assembly}" "${fastq}" > "${mapped_folder}/${filename}.sam"
-samtools view -bS -o "${mapped_folder}/${filename}.bam" "${mapped_folder}/${filename}.sam" > "/dev/null"
-samtools sort "${mapped_folder}/${filename}.bam" -o "${mapped_folder}/${filename}.sorted.bam"
-samtools index "${mapped_folder}/${filename}.sorted.bam"
-rm "${mapped_folder}/${filename}.sam"
-rm "${mapped_folder}/${filename}.bam"
-done
+if [ ! -z "$fastq" ]; then
+    filename=$(basename "$fastq" .fastq.gz)
+    bwa mem -t "${thr}" "${assembly}" "${fastq}" > "${mapped_folder}/${filename}.sam"
+    samtools view -bS -o "${mapped_folder}/${filename}.bam" "${mapped_folder}/${filename}.sam" > "/dev/null"
+    samtools sort "${mapped_folder}/${filename}.bam" -o "${mapped_folder}/${filename}.sorted.bam"
+    samtools index "${mapped_folder}/${filename}.sorted.bam"
+    rm "${mapped_folder}/${filename}.sam"
+    rm "${mapped_folder}/${filename}.bam"
+    echo "${filename} mapped successfully to ${assembly}"
+    echo "Extracting low coverage sequences from ${filename}"
+    bash "$current_dir/scripts/bam2fasta.sh" "${mapped_folder}/${filename}.sorted.bam" "${assembly}" "${min_cov}" "${min_len}" "${mapped_folder}"
+else
+    filename=$(basename "${bam%.bam}")
+    filename=$(basename "${filename%.sorted}")
+    echo "No fastq file specified. Skipping BWA-MEM mapping."
+    samtools index "${bam}"
+    echo "Extracting low coverage sequences from ${filename}"
+    bash "$current_dir/scripts/bam2fasta.sh" "${bam}" "${assembly}" "${min_cov}" "${min_len}" "${mapped_folder}"
+fi
 
-echo "${filename} mapped successfully to ${assembly}"
-echo "Extracting low coverage sequences from ${filename}"
-bash "scripts/bam2fasta.sh" "${mapped_folder}/${filename}.sorted.bam" "${assembly}" "${mapped_folder}"
-
-blastn -query "${mapped_folder}/unmapped.fasta" -subject "${mapped_folder}/unmapped.fasta" -out "${mapped_folder}/unmapped.blast"  -outfmt 6
-awk '($12) >= 1000' "${mapped_folder}/unmapped.blast" > "${mapped_folder}/unmapped-filtered.blast"
-mkdir "${mapped_folder}/clusters/"
+blastn -query "${mapped_folder}/${filename}-unmapped.fasta" -subject "${mapped_folder}/${filename}-unmapped.fasta" -out "${mapped_folder}/${filename}-unmapped.tmp.blast"  -outfmt 6
+awk '($12) >= 1000' "${mapped_folder}/${filename}-unmapped.tmp.blast" > "${mapped_folder}/${filename}-unmapped.blast"
+rm "${mapped_folder}/${filename}-unmapped.tmp.blast"
+mkdir "${mapped_folder}/${filename}-clusters/"
 echo "Finding repetitive sequences..."
-python "scripts/blast2clusters.py" "${mapped_folder}/unmapped-filtered.blast" "${mapped_folder}/unmapped.fasta" "${mapped_folder}/clusters/"
+python "$current_dir/scripts/blast2clusters.py" "${mapped_folder}/${filename}-unmapped.blast" "${mapped_folder}/${filename}-unmapped.fasta" "${mapped_folder}/${filename}-clusters/"
 
 echo "Extracting consensus sequences of the invaders..."
-for fasta in "${mapped_folder}/clusters/"*.fasta; do
-    # Define the output file name based on the input file name
+# Check if there are any .fasta files in the folder
+if ! ls "${mapped_folder}/${filename}-clusters/"*.fasta 1> /dev/null 2>&1; then
+    echo "No fasta files found in the folder. Zero repetitive sequences found."
+    rm -r "${mapped_folder}/${filename}-clusters/"
+    exit 1
+fi
+
+# Loop through each fasta file in the folder
+for fasta in "${mapped_folder}/${filename}-clusters/"*.fasta
+do
+    # Define the output file names based on the input file name
     output_MSA="${fasta%.fasta}.MSA"
     output_consensus="${fasta%.fasta}.consensus"
     output_standard="${fasta%.fasta}"
-    
-    # Refine clusters
-    #python "scripts/refine-clusters.py" "$fasta" "$output_standard" "$assembly"
 
     # Run MUSCLE with input and output files
     muscle -in "${output_standard}.fasta" -out "$output_MSA"
-    python "scripts/MSA2consensus.py" "$output_MSA" "$output_consensus"
+    python "$current_dir/scripts/MSA2consensus.py" "$output_MSA" "$output_consensus"
 done
 
-cat "${mapped_folder}/clusters/"*consensus > "${mapped_folder}/candidates.fasta"
-echo "Extracting consensus sequences of the invaders..."
+# Concatenate all consensus files into one candidates file
+cat "${mapped_folder}/${filename}-clusters/"*consensus > "${mapped_folder}/${filename}-candidates.fasta"

@@ -1,4 +1,5 @@
 import argparse
+import os
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="Find clusters in BLAST matrix.")
@@ -51,7 +52,33 @@ def filter(fasta, selection, out):
                 output_file.write(line + "\n")  # Write the next line to output
                 write_line = False
 
+def check_len(fasta):
+    with open(fasta, 'r') as fasta_file:
+        lens = []
+        saved = []
+        seq = ""
+        for line in fasta_file:
+            line = line.strip()
+            if line.startswith(">"):
+                continue
+            else:
+                sequence_len = len(line)
+                lens.append(sequence_len)
+        mean_len = sum(lens)/len(lens)
+        fasta_file.seek(0)
+        for line in fasta_file:
+            if line.startswith(">"):
+                seq = line[1:-1]
+            else:
+                sequence_len = len(line)
+                if sequence_len < (mean_len*2):
+                    saved.append(seq)
+    return(saved)
+
 clusters = find_clusters(args.blast)
 for i, cluster in enumerate(clusters):
     if len(cluster) > 2:
-        filter(args.fasta, cluster, args.output+"cluster_"+str(i)+".fasta")
+        filter(args.fasta, cluster, args.output+"cluster_"+str(i)+".fasta.raw")
+        correct_len = check_len(args.output+"cluster_"+str(i)+".fasta.raw")
+        filter(args.output+"cluster_"+str(i)+".fasta.raw", correct_len, args.output+"cluster_"+str(i)+".fasta")
+        os.remove(args.output+"cluster_"+str(i)+".fasta.raw")
