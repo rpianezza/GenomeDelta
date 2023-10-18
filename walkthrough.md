@@ -1,16 +1,37 @@
 GenomeDelta - Walkthrough
 ================
 
-``` r
-suppressPackageStartupMessages(library(tidyverse))
-suppressPackageStartupMessages(library(knitr))
-suppressPackageStartupMessages(library(kableExtra))
-theme_set(theme_bw())
-```
+## Purpose of GenomeDelta
 
-## How to call GenomeDelta
+**GenomeDelta** is a software designed to unravel the mysteries of
+genome evolution in a species. By comparing an older genome (in FASTQ
+format) with a more recent assembly (in FASTA format) of the same
+species, **GenomeDelta** swiftly identifies novel genetic elements
+present in the new assembly, but absent in the older genome.
 
-Example call in the UNIX command line:
+Its primary focus is on detecting transposable element invasions, while
+also offering the capability to pinpoint various other noteworthy
+genomic alterations. An enormous advantage of **GenomeDelta** when
+dealing with transposable elements is that it does not require any
+reference library of transposons to identify the novel invaders.
+Reference libraries are often incomplete and hard to build, especially
+for non-model species.
+
+## Set the GenomeDelta conda environment
+
+First, you need to create the **conda environment** to install all the
+necessary packages. Use the `set-env.yml` file.
+
+    conda env create -f set-env.yml
+
+Then, before calling GenomeDelta, activate the environment:
+
+    conda activate GenomeDelta
+
+## Call GenomeDelta
+
+After you are sure to be into the GenomeDelta conda environment, you can
+call the main script. Example call in the UNIX command line:
 
     bash main.sh --fq reads.fastq.gz --fa assembly.fa --of folder_path --t 20
 
@@ -72,6 +93,36 @@ For **BAM** (sorted):
 
     for bam_file in folder/*.sorted.bam; do base_name=$(basename "$bam_file" .sorted.bam); file="$base_name"; bash main.sh --bam "$bam_file" --fa assembly.fa --of folder_path/"$file" --t 20; done
 
+These commands will generate a separate folder for each of the input
+files.
+
+## Output files
+
+- `unmapped.fasta` -\> FASTA containing all the sequences with coverage
+  lower than `--min_cov` (default = 2) and longer than `--min_len`
+  (default = 1000 bases), merged together if their distance is lower
+  than `--d` (default = 100 bases).
+
+- `unmapped.bed` -\> Chromosome, starting and ending positions of the
+  sequences collected in `unmapped.fasta`.
+
+- `unmapped.blast` -\> Output of the self BLAST of `unmapped.fasta`
+  against itself. This file is then used by the program to find the
+  repetitive clusters of sequences.
+
+- `candidates.fasta` -\> Consensus sequences of the repetitive clusters.
+  Represents a list of candidates of the invading TEs, to be further
+  investigated.
+
+- `clusters` -\> This folder contains, for each of the repetitive
+  clusters found:
+
+  - a **FASTA** file containing all the sequences clustering together.
+  - a **MSA** (multiple sequence alignment) of the cluster sequences,
+    performed using MUSCLE.
+  - the **consensus** sequence of the cluster, then concatenated with
+    the other consensus into the **candidates.fasta** output.
+
 ## Step-by-step explanation of GenomeDelta’s workflow
 
 1)  Mapping the FASTQ old genome to the FASTA recent assembly (tools:
@@ -112,34 +163,7 @@ For **BAM** (sorted):
 7)  On each **cluster.fasta** file, runs a MSA with `MUSCLE`.
 
 8)  Calls the `MSA2consensus`, which creates a consensus sequence for
-    each of the identified clusters.
+    each of the identified clusters using a majority-wins approach.
 
 9)  Concatenate the consensus sequences into the final output with the
     candidates (**candidates.fasta**).
-
-## Output files
-
-- `unmapped.fasta` -\> FASTA containing all the sequences with coverage
-  lower than `--min_cov` (default = 2) and longer than `--min_len`
-  (default = 1000 bases), merged together if their distance is lower
-  than `--d` (default = 100 bases).
-
-- `unmapped.bed` -\> Chromosome, starting and ending positions of the
-  sequences collected in `unmapped.fasta`.
-
-- `unmapped.blast` -\> Output of the self BLAST of `unmapped.fasta`
-  against itself. This file is then used by the program to find the
-  repetitive clusters of sequences.
-
-- `candidates.fasta` -\> Consensus sequences of the repetitive clusters.
-  Represents a list of candidates of the invading TEs, to be further
-  investigated.
-
-- `clusters` -\> This folder contains, for each of the repetitive
-  clusters found:
-
-  - a **FASTA** file containing all the sequences clustering together.
-  - a **MSA** (multiple sequence alignment) of the cluster sequences,
-    performed using MUSCLE.
-  - the **consensus** sequence of the cluster, then concatenated with
-    the other consensus into the **candidates.fasta** output.
