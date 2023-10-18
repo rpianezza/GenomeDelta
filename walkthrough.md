@@ -77,7 +77,7 @@ already mapped file as input to save time.
 
 Example call:
 
-    bash main.sh --bam reads.fastq.gz --fa assembly.fa --of folder_path --t 5
+    bash main.sh --bam reads.sorted.bam --fa assembly.fa --of folder_path --t 5
 
 ### Call GenomeDelta giving multiple FASTQ/BAM files as input
 
