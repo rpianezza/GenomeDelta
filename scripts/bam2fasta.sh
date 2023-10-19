@@ -37,10 +37,10 @@ awk 'BEGIN{OFS="\t"}{$2=$2+1; $3=$3-1}1' "$output_folder/${filename}-low_coverag
 rm "$output_folder/${filename}-low_coverage_merged.tmp.bed"
 
 # Remove small sequences
-awk '($3 - $2) >= '$min_len "$output_folder/${filename}-low_coverage_merged.bed" > "$output_folder/${filename}-unmapped.bed"
+awk '($3 - $2) >= '$min_len "$output_folder/${filename}-low_coverage_merged.bed" > "$output_folder/${filename}-GD.bed"
 
 # Extract FASTA sequences
-bedtools getfasta -fi "$assembly" -bed "$output_folder/${filename}-unmapped.bed" -fo "$output_folder/${filename}-unmapped.fasta"
+bedtools getfasta -fi "$assembly" -bed "$output_folder/${filename}-GD.bed" -fo "$output_folder/${filename}-GD.fasta"
 
 rm "$output_folder/${filename}.bedgraph"
 rm "$output_folder/${filename}-low_coverage.bedgraph"

@@ -98,23 +98,23 @@ files.
 
 # Output files
 
-- `unmapped.fasta` -\> FASTA containing all the sequences with coverage
-  lower than `--min_cov` (default = 2) and longer than `--min_len`
-  (default = 1000 bases), merged together if their distance is lower
-  than `--d` (default = 100 bases).
+- `GD.fasta` -\> FASTA containing all the sequences with coverage lower
+  than `--min_cov` (default = 2) and longer than `--min_len` (default =
+  1000 bases), merged together if their distance is lower than `--d`
+  (default = 100 bases).
 
-- `unmapped.bed` -\> Chromosome, starting and ending positions of the
-  sequences collected in `unmapped.fasta`.
+- `GD.bed` -\> Chromosome, starting and ending positions of the
+  sequences collected in `GD.fasta`.
 
-- `unmapped.blast` -\> Output of the self BLAST of `unmapped.fasta`
-  against itself. This file is then used by the program to find the
-  repetitive clusters of sequences.
+- `GD.blast` -\> Output of the self BLAST of `GD.fasta` against itself.
+  This file is then used by the program to find the repetitive clusters
+  of sequences.
 
-- `candidates.fasta` -\> Consensus sequences of the repetitive clusters.
-  Represents a list of candidates of the invading TEs, to be further
-  investigated.
+- `GD-candidates.fasta` -\> Consensus sequences of the repetitive
+  clusters. Represents a list of candidates of the invading TEs, to be
+  further investigated.
 
-- `clusters` -\> This folder contains, for each of the repetitive
+- `GD-clusters` -\> This folder contains, for each of the repetitive
   clusters found:
 
   - a **FASTA** file containing all the sequences clustering together.
@@ -143,22 +143,21 @@ files.
   done to defragment sequences which may have some reads mapping on a
   fragment in between them. Output: **low_coverage_merged.bed** (tools:
   `bedtools`).
-- remove small sequences (\<1000 bases). Output: **unmapped.bed**.
+- remove small sequences (\<1000 bases). Output: **GD.bed**.
 - extract FASTA sequences of the low-coverage regions. Output:
-  **unmapped.fasta** (tools: `bedtools`).
+  **GD.fasta** (tools: `bedtools`).
 
 4)  BLAST the resulting FASTA file against itself and removes low
-    quality hits (BLAST score \< 1000). Output:
-    **unmapped-filtered.blast**.
+    quality hits (BLAST score \< 1000). Output: **GD.blast**.
 
-5)  Creates the folder **clusters**.
+5)  Creates the folder **GD-clusters**.
 
 6)  Calls the script `blast2clusters`, which:
 
-- extracts similar sequences from the **unmapped-filtered.blast** file.
-- writes a fasta file for each cluster in the folder **clusters**, but
-  only if the cluster contains at least 3 sequences (\>2). This is done
-  to keep only repetitive sequences in the final file.
+- extracts similar sequences from the **GD.blast** file.
+- writes a fasta file for each cluster in the folder **GD-clusters**,
+  but only if the cluster contains at least 3 sequences (\>2). This is
+  done to keep only repetitive sequences in the final file.
 
 7)  On each **cluster.fasta** file, runs a MSA with `MUSCLE`.
 
@@ -166,4 +165,4 @@ files.
     each of the identified clusters using a majority-wins approach.
 
 9)  Concatenate the consensus sequences into the final output with the
-    candidates (**candidates.fasta**).
+    candidates (**GD-candidates.fasta**).

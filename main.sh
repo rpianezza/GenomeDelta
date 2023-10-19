@@ -73,9 +73,7 @@ current_dir=$(dirname "$(readlink -f "$0")")
 # Run BWA-MEM to map fastq to fasta
 if [ ! -z "$fastq" ]; then
     filename=$(basename "$fastq" .fastq.gz)
-    bwa mem -t "${thr}" "${assembly}" "${fastq}" > "${mapped_folder}/${filename}.sam"
-    samtools view -bS -o "${mapped_folder}/${filename}.bam" "${mapped_folder}/${filename}.sam" > "/dev/null"
-    samtools sort "${mapped_folder}/${filename}.bam" -o "${mapped_folder}/${filename}.sorted.bam"
+    bwa mem -t "${thr}" "${assembly}" "${fastq}" | samtools view -bS - | samtools sort -o "${mapped_folder}/${filename}.sorted.bam" -
     samtools index "${mapped_folder}/${filename}.sorted.bam"
     rm "${mapped_folder}/${filename}.sam"
     rm "${mapped_folder}/${filename}.bam"
@@ -91,23 +89,23 @@ else
     bash "$current_dir/scripts/bam2fasta.sh" "${bam}" "${assembly}" "${min_cov}" "${min_len}" "${mapped_folder}"
 fi
 
-blastn -query "${mapped_folder}/${filename}-unmapped.fasta" -subject "${mapped_folder}/${filename}-unmapped.fasta" -out "${mapped_folder}/${filename}-unmapped.tmp.blast"  -outfmt 6
-awk '($12) >= 1000' "${mapped_folder}/${filename}-unmapped.tmp.blast" > "${mapped_folder}/${filename}-unmapped.blast"
-rm "${mapped_folder}/${filename}-unmapped.tmp.blast"
-mkdir "${mapped_folder}/${filename}-clusters/"
+blastn -query "${mapped_folder}/${filename}-GD.fasta" -subject "${mapped_folder}/${filename}-GD.fasta" -out "${mapped_folder}/${filename}-GD.tmp.blast"  -outfmt 6
+awk '($12) >= 1000' "${mapped_folder}/${filename}-GD.tmp.blast" > "${mapped_folder}/${filename}-GD.blast"
+rm "${mapped_folder}/${filename}-GD.tmp.blast"
+mkdir "${mapped_folder}/${filename}-GD-clusters/"
 echo "Finding repetitive sequences..."
-python "$current_dir/scripts/blast2clusters.py" "${mapped_folder}/${filename}-unmapped.blast" "${mapped_folder}/${filename}-unmapped.fasta" "${mapped_folder}/${filename}-clusters/"
+python "$current_dir/scripts/blast2clusters.py" "${mapped_folder}/${filename}-GD.blast" "${mapped_folder}/${filename}-GD.fasta" "${mapped_folder}/${filename}-GD-clusters/"
 
 echo "Extracting consensus sequences of the invaders..."
 # Check if there are any .fasta files in the folder
-if ! ls "${mapped_folder}/${filename}-clusters/"*.fasta 1> /dev/null 2>&1; then
+if ! ls "${mapped_folder}/${filename}-GD-clusters/"*.fasta 1> /dev/null 2>&1; then
     echo "No fasta files found in the folder. Zero repetitive sequences found."
-    rm -r "${mapped_folder}/${filename}-clusters/"
+    rm -r "${mapped_folder}/${filename}-GD-clusters/"
     exit 1
 fi
 
 # Loop through each fasta file in the folder
-for fasta in "${mapped_folder}/${filename}-clusters/"*.fasta
+for fasta in "${mapped_folder}/${filename}-GD-clusters/"*.fasta
 do
     # Define the output file names based on the input file name
     output_MSA="${fasta%.fasta}.MSA"
@@ -120,4 +118,4 @@ do
 done
 
 # Concatenate all consensus files into one candidates file
-cat "${mapped_folder}/${filename}-clusters/"*consensus > "${mapped_folder}/${filename}-candidates.fasta"
+cat "${mapped_folder}/${filename}-GD-clusters/"*consensus > "${mapped_folder}/${filename}-GD-candidates.fasta"
