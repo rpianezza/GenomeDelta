@@ -94,7 +94,44 @@ For **BAM** (sorted):
     for bam_file in folder/*.sorted.bam; do base_name=$(basename "$bam_file" .sorted.bam); file="$base_name"; bash main.sh --bam "$bam_file" --fa assembly.fa --of folder_path/"$file" --t 20; done
 
 These commands will generate a separate folder for each of the input
-files.
+files, named as the input file basename.
+
+### Call GenomeDelta giving multiple FASTA assemblies as input
+
+To iterate over multiple **FASTA assemblies** and run **GenomeDelta** on
+all of them against a single FASTQ file, you can use this loop
+structure:
+
+    for fa_file in /path/to/your/fasta/files/*.fa; do
+        base_name=$(basename "$fa_file" .fa)
+        file="$base_name"
+        bash main.sh --fq reads.fastq.gz --fa "$fa_file" --of /path/to/output/"$file" --t 20
+    done
+
+This command will generate a separate folder for each of the assemblies,
+named as the assembly file basename.
+
+### Call GenomeDelta giving multiple FASTQ/BAM files as well as multiple FASTA assemblies as input
+
+To iterate over multiple **FASTA assemblies** and run **GenomeDelta** on
+all of them against a multiple FASTQ files, you can use this double loop
+structure:
+
+    for fq_file in /path/to/your/fastq/files/*.fastq.gz; do
+        base_name=$(basename "$fq_file" .fastq.gz)
+        for fa_file in /path/to/your/fasta/assemblies/*.fa; do
+            base_name_fa=$(basename "$fa_file" .fa)
+            file="$base_name"
+            file_fa="$base_name_fa"
+            bash main.sh --fq "$fq_file" --fa "$fa_file" --of /path/to/output/"$file"_"$file_fa" --t 20
+        done
+    done
+
+This command will generate a separate folder for each of the
+assembly-FASTQ combination, named as the FASTQ file basename and the
+assembly file basename separated by “\_“. You can change this loop to
+make it iterate over BAM files instead of FASTQ. Note that you may need
+to adjust the extension”fa” to “fasta” based on the assemblies names.
 
 # Output files
 
