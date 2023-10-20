@@ -1,4 +1,4 @@
-GenomeDelta - Walkthrough
+GenomeDelta - Manual
 ================
 
 # Purpose of GenomeDelta
@@ -114,7 +114,7 @@ named as the assembly file basename.
 ### Call GenomeDelta giving multiple FASTQ/BAM files as well as multiple FASTA assemblies as input
 
 To iterate over multiple **FASTA assemblies** and run **GenomeDelta** on
-all of them against a multiple FASTQ files, you can use this double loop
+all of them against multiple FASTQ files, you can use this double loop
 structure:
 
     for fq_file in /path/to/your/fastq/files/*.fastq.gz; do
@@ -159,6 +159,48 @@ to adjust the extension”fa” to “fasta” based on the assemblies names.
     performed using MUSCLE.
   - the **consensus** sequence of the cluster, then concatenated with
     the other consensus into the **candidates.fasta** output.
+
+# Interpreting the results and potential issues
+
+The main output file for repetitive sequences is `GD-candidates.fasta`,
+which represents a list of candidates invaders in the time range going
+from the old genome collection time to the recent assembly collection
+time. However, not all the sequences found in the file are probably real
+invaders.
+
+Inside the file, you will probably find sequences of **telomeric
+repeats**: telomeres often have coverage gaps in sequencing efforts,
+thus a telomeric repetitive region could remain unsequenced in the FASTQ
+file and appear as coverage gap in the FASTA assembly, ending in our
+candidates list. It is thus important to check where are the repetitive
+sequences of the cluster (the FASTA name of the sequences contains the
+genomic position).
+
+Also, an invading TE with a consistent sequence similarity to another
+(old, non recently invading) TE will result in reads mapping to the
+supposed “coverage gap” of the new TE. Thus, instead of having a clean
+coverage gap representing the new TE insertion, we will have some reads
+mapping on at least a part of the gap. In the **GenomeDelta** output,
+you may find **different parts of the same, new TE in different
+“clusters”**, so in different FASTA entries, each representing a “clean”
+gap in the coverage divided by a high coverage region (es. a part of the
+TE very similar to the old TE, where the reads are mapping).
+
+Those problems could be solved by playing with the options provided by
+the software, but multiple run of **GenomeDelta** could be necessary to
+polish the results.
+
+Furthermore, the quality of both the FASTQ file and the FASTA assembly
+have an impact on the purity of the results.
+
+- If the **FASTQ** file has a low coverage or/and a high gaps
+  percentage, many coverage gaps will be identified by GenomeDelta when
+  mapping to the assembly.
+
+- If the **FASTA** assembly has a low quality, for example many contigs,
+  there could be contigs where the reads are not mapping at all (es.
+  contaminations from other organisms). The quality of the long read
+  assembly is thus crucial for a smooth **GenomeDelta** run.
 
 # Step-by-step explanation of GenomeDelta’s workflow
 

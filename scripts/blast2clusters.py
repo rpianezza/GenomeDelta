@@ -71,7 +71,7 @@ def check_len(fasta):
                 seq = line[1:-1]
             else:
                 sequence_len = len(line)
-                if sequence_len < (mean_len*2):
+                if (sequence_len < (mean_len*2)) and (sequence_len < 25000):
                     saved.append(seq)
     return(saved)
 
@@ -80,5 +80,6 @@ for i, cluster in enumerate(clusters):
     if len(cluster) > 2:
         filter(args.fasta, cluster, args.output+"cluster_"+str(i)+".fasta.raw")
         correct_len = check_len(args.output+"cluster_"+str(i)+".fasta.raw")
-        filter(args.output+"cluster_"+str(i)+".fasta.raw", correct_len, args.output+"cluster_"+str(i)+".fasta")
-        os.remove(args.output+"cluster_"+str(i)+".fasta.raw")
+        if len(correct_len) > 2:
+            filter(args.output+"cluster_"+str(i)+".fasta.raw", correct_len, args.output+"cluster_"+str(i)+".fasta")
+            os.remove(args.output+"cluster_"+str(i)+".fasta.raw")
