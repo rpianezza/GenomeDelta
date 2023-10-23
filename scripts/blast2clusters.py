@@ -22,6 +22,8 @@ def find_clusters(blast):
                 query = line.split("\t")[0]
                 subject = line.split("\t")[1]
                 clusters[i].append(query)
+                if query != subject:
+                    clusters[i].append(subject)
                 #print("New query: " + str(query))
                 #print("New cluster: " + str(clusters[i]))
             elif line.split("\t")[0] != query:
