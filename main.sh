@@ -87,6 +87,11 @@ else
     bash "$current_dir/scripts/bam2fasta.sh" "${bam}" "${assembly}" "${min_cov}" "${min_len}" "${mapped_folder}"
 fi
 
+if [[ ! -s "${mapped_folder}/${filename}-GD.fasta" ]]; then
+  echo "The file ${mapped_folder}/${filename}-GD.fasta is empty. GenomeDelta was not able to identify any new region in FASTA file. Check if you prepared everything according to the Manuel. Try to change the parameters to reduce stringency"
+  exit 1
+fi
+
 blastn -query "${mapped_folder}/${filename}-GD.fasta" -subject "${mapped_folder}/${filename}-GD.fasta" -out "${mapped_folder}/${filename}-GD.tmp.blast"  -outfmt 6
 awk '($12) >= 1000' "${mapped_folder}/${filename}-GD.tmp.blast" > "${mapped_folder}/${filename}-GD.blast"
 rm "${mapped_folder}/${filename}-GD.tmp.blast"
