@@ -56,6 +56,7 @@ def check_len(fasta):
     with open(fasta, 'r') as fasta_file:
         lens = []
         saved = []
+        discarded = []
         seq = ""
         for line in fasta_file:
             line = line.strip()
@@ -73,13 +74,26 @@ def check_len(fasta):
                 sequence_len = len(line)
                 if (sequence_len < (mean_len*2)) and (sequence_len < 25000):
                     saved.append(seq)
-    return(saved)
+                else:
+                    discarded.append(seq)
+    return saved, discarded
 
 clusters = find_clusters(args.blast)
+non_repetitive = []
 for i, cluster in enumerate(clusters):
     if len(cluster) > 2:
         filter(args.fasta, cluster, args.output+"cluster_"+str(i)+".fasta.raw")
-        correct_len = check_len(args.output+"cluster_"+str(i)+".fasta.raw")
+        correct_len, discarded = check_len(args.output+"cluster_"+str(i)+".fasta.raw")
         if len(correct_len) > 2:
             filter(args.output+"cluster_"+str(i)+".fasta.raw", correct_len, args.output+"cluster_"+str(i)+".fasta")
             os.remove(args.output+"cluster_"+str(i)+".fasta.raw")
+        else:
+            for seq in cluster:
+                non_repetitive.append(seq)
+            for seq in discarded:
+                non_repetitive.append(seq)
+    else:
+        for seq in cluster:
+            non_repetitive.append(seq)
+
+filter(args.fasta, non_repetitive, args.output+"non_rep.fasta")

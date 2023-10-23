@@ -93,6 +93,7 @@ rm "${mapped_folder}/${filename}-GD.tmp.blast"
 mkdir "${mapped_folder}/${filename}-GD-clusters/"
 echo "Finding repetitive sequences..."
 python "$current_dir/scripts/blast2clusters.py" "${mapped_folder}/${filename}-GD.blast" "${mapped_folder}/${filename}-GD.fasta" "${mapped_folder}/${filename}-GD-clusters/"
+mv "${mapped_folder}/${filename}-GD-clusters/non_rep.fasta" "${mapped_folder}/${filename}-GD-non_rep.fasta"
 
 echo "Extracting consensus sequences of the invaders..."
 # Check if there are any .fasta files in the folder
