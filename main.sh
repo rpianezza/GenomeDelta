@@ -77,7 +77,7 @@ if [ ! -z "$fastq" ]; then
     samtools index "${mapped_folder}/${filename}.sorted.bam"
     echo "${filename} mapped successfully to ${assembly}"
     echo "Extracting low coverage sequences from ${filename}"
-    bash "$current_dir/scripts/bam2fasta.sh" "${mapped_folder}/${filename}.sorted.bam" "${assembly}" "${min_cov}" "${min_len}" "${mapped_folder}"
+    bash "$current_dir/scripts/bam2fasta.sh" "${mapped_folder}/${filename}.sorted.bam" "${assembly}" "${min_cov}" "${min_len}" "${d}" "${mapped_folder}"
 else
     filename=$(basename "${bam%.bam}")
     filename=$(basename "${filename%.sorted}")
