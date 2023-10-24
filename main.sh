@@ -84,11 +84,11 @@ else
     echo "No fastq file specified. Skipping BWA-MEM mapping."
     samtools index "${bam}"
     echo "Extracting low coverage sequences from ${filename}"
-    bash "$current_dir/scripts/bam2fasta.sh" "${bam}" "${assembly}" "${min_cov}" "${min_len}" "${mapped_folder}"
+    bash "$current_dir/scripts/bam2fasta.sh" "${bam}" "${assembly}" "${min_cov}" "${min_len}" "${d}" "${mapped_folder}"
 fi
 
 if [[ ! -s "${mapped_folder}/${filename}-GD.fasta" ]]; then
-  echo "The file ${mapped_folder}/${filename}-GD.fasta is empty. GenomeDelta was not able to identify any new region in FASTA file. Check if you prepared everything according to the Manuel. Try to change the parameters to reduce stringency"
+  echo "The file ${mapped_folder}/${filename}-GD.fasta is empty. GenomeDelta was not able to identify any new region in FASTA file. Check if you prepared everything according to the Manual. Try to change the parameters to reduce stringency"
   exit 1
 fi
 

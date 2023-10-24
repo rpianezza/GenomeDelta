@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Check if correct number of arguments is provided
-if [ "$#" -ne 5 ]; then
-    echo "Usage: $0 <input_bam> <assembly> <min_cov> <min_len> <output_folder>"
+if [ "$#" -ne 6 ]; then
+    echo "Usage: $0 <input_bam> <assembly> <min_cov> <min_len> <max_d> <output_folder>"
     exit 1
 fi
 
@@ -11,7 +11,8 @@ input_bam="$1"
 assembly="$2"
 min_cov="$3"
 min_len="$4"
-output_folder="$5"
+max_d="$5"
+output_folder="$6"
 
 # Create output folder if it doesn't exist
 mkdir -p "$output_folder"
@@ -30,7 +31,7 @@ awk '$3 < '$min_cov "$output_folder/${filename}.bedgraph" > "$output_folder/${fi
 awk 'BEGIN{FS=OFS="\t"} {print $1, $2, $2}' "$output_folder/${filename}-low_coverage.bedgraph" > "$output_folder/${filename}-low_coverage.bed"
 
 # Merge low coverage intervals
-bedtools merge -i "$output_folder/${filename}-low_coverage.bed" -d 100 > "$output_folder/${filename}-low_coverage_merged.tmp.bed"
+bedtools merge -i "$output_folder/${filename}-low_coverage.bed" -d "$max_d" > "$output_folder/${filename}-low_coverage_merged.tmp.bed"
 # Remove one base from the start and end of each interval
 awk 'BEGIN{OFS="\t"}{$2=$2+1; $3=$3-1}1' "$output_folder/${filename}-low_coverage_merged.tmp.bed" > "$output_folder/${filename}-low_coverage_merged.bed"
 # Remove the temporary file
