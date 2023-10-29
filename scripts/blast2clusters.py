@@ -24,6 +24,7 @@ def find_clusters(blast):
                 clusters[i].append(query)
                 if query != subject:
                     clusters[i].append(subject)
+                    #print("Appending to cluster: " + str(subject))
                 #print("New query: " + str(query))
                 #print("New cluster: " + str(clusters[i]))
             elif line.split("\t")[0] != query:
@@ -74,7 +75,7 @@ def check_len(fasta):
                 seq = line[1:-1]
             else:
                 sequence_len = len(line)
-                if (sequence_len < (mean_len*2)) and (sequence_len < 25000):
+                if (sequence_len < (mean_len*2)) and (sequence_len > (mean_len/2)) and (sequence_len < 25000):
                     saved.append(seq)
                 else:
                     discarded.append(seq)

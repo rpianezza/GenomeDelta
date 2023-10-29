@@ -40,9 +40,16 @@ rm "$output_folder/${filename}-low_coverage_merged.tmp.bed"
 # Remove small sequences
 awk '($3 - $2) >= '$min_len "$output_folder/${filename}-low_coverage_merged.bed" > "$output_folder/${filename}-GD.bed"
 
-# Extract FASTA sequences
-bedtools getfasta -fi "$assembly" -bed "$output_folder/${filename}-GD.bed" -fo "$output_folder/${filename}-GD.fasta"
+# Assign credibility to each sequence based on genomic context coverage
+current_dir=$(dirname "$(readlink -f "$0")")
+bash "$current_dir/credibility.sh" "$output_folder/${filename}-GD.bed" "$output_folder/${filename}.bedgraph" "$input_bam" "$assembly" "$output_folder"
+python "$current_dir/credibility.py" "$output_folder/${filename}-GD.bed" "$output_folder/${filename}-GD-flanking.credibility" "$output_folder/${filename}-GD.fai"
 
+# Use a loop to process each line in the BED file and get the corresponding cred_value
+bedtools getfasta -fi "$assembly" -bed "$output_folder/${filename}-GD-credibility.bed" -fo "$output_folder/${filename}-GD.fasta" -name
+sed -i'' -e 's/::.*$//' "$output_folder/${filename}-GD.fasta"  
+
+# Remove the temporary files
 rm "$output_folder/${filename}.bedgraph"
 rm "$output_folder/${filename}-low_coverage.bedgraph"
 rm "$output_folder/${filename}-low_coverage.bed"

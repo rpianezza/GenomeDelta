@@ -2,7 +2,7 @@
 
 # Set default values for optional arguments
 d=100 # maximum distance accepted for a gap between 2 low coverage sequences
-min_cov=2 # minimum coverage of a position to be considered NON low coverage (in this case, only cov=0 or cov=1 are included in low coverages)
+min_cov=1 # minimum coverage of a position to be considered NON low coverage (in this case, only cov=0 is included in low coverages)
 min_len=1000 # minimum length for a low-coverage sequence to be included in the output
 
 # Initialize variables
@@ -120,6 +120,16 @@ do
     muscle -in "${output_standard}.fasta" -out "$output_MSA"
     python "$current_dir/scripts/MSA2consensus.py" "$output_MSA" "$output_consensus"
 done
+
+rm "${mapped_folder}/${filename}-GD-flanking.bed"
+rm "${mapped_folder}/${filename}.sorted.bam.bai"
+rm "${mapped_folder}/${filename}-GD.blast"
+rm "${mapped_folder}/${filename}-GD-flanking.bedgraph"
+rm "${mapped_folder}/${filename}-GD-flanking.credibility"
+rm "${mapped_folder}/${filename}-GD.fasta-e"
+rm "${mapped_folder}/${filename}-GD.fai"
+rm "${mapped_folder}/${filename}-GD.bed"
+mv "${mapped_folder}/${filename}-GD-credibility.bed" "${mapped_folder}/${filename}-GD.bed"
 
 # Concatenate all consensus files into one candidates file
 cat "${mapped_folder}/${filename}-GD-clusters/"*consensus > "${mapped_folder}/${filename}-GD-candidates.fasta"

@@ -24,7 +24,14 @@ defragment_MSA(args.MSA, args.output+".def")
 
 with open(args.output+".def", 'r') as input, open(args.output, 'w') as output:
     input_basename = os.path.basename(args.output)
-    output.write(">" + input_basename + "\n")
+    cred = []
+    for line in input:
+        if line.startswith('>'):
+            credibility = float(line.split('-')[2])
+            cred.append(credibility)
+    cluster_credibility = round(sum(cred)/len(cred),2)
+    output.write(">" + input_basename + "-" + str(cluster_credibility) + "\n")
+    input.seek(0)
     next(input)
     sequence_length = len(next(input).strip())
     input.seek(0)
