@@ -123,7 +123,7 @@ done
 
 rm "${mapped_folder}/${filename}-GD-flanking.bed"
 rm "${mapped_folder}/${filename}.sorted.bam.bai"
-rm "${mapped_folder}/${filename}-GD.blast"
+#rm "${mapped_folder}/${filename}-GD.blast"
 rm "${mapped_folder}/${filename}-GD-flanking.bedgraph"
 rm "${mapped_folder}/${filename}-GD-flanking.credibility"
 rm "${mapped_folder}/${filename}-GD.fasta-e"

@@ -1,5 +1,7 @@
 import argparse
 import os
+from collections import Counter
+import csv
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="Find clusters in BLAST matrix.")
@@ -11,6 +13,17 @@ args = parser.parse_args()
 '''
 
 '''
+def sort_blast(input_file, output_file):
+    with open(input_file, 'r', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter='\t')
+        data = list(reader)
+    
+    sorted_data = sorted(data, key=lambda x: x[0])  # Sort by the first column
+    
+    with open(output_file, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter='\t')
+        writer.writerows(sorted_data)
+
 def find_clusters(blast):
     i = 0
     query = ""
@@ -81,7 +94,8 @@ def check_len(fasta):
                     discarded.append(seq)
     return saved, discarded
 
-clusters = find_clusters(args.blast)
+sort_blast(args.blast, args.blast+".sorted")
+clusters = find_clusters(args.blast+".sorted")
 non_repetitive = []
 for i, cluster in enumerate(clusters):
     if len(cluster) > 2:
