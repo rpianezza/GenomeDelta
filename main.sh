@@ -123,13 +123,14 @@ done
 
 rm "${mapped_folder}/${filename}-GD-flanking.bed"
 rm "${mapped_folder}/${filename}.sorted.bam.bai"
-#rm "${mapped_folder}/${filename}-GD.blast"
+rm "${mapped_folder}/${filename}-GD.blast"
 rm "${mapped_folder}/${filename}-GD-flanking.bedgraph"
 rm "${mapped_folder}/${filename}-GD-flanking.credibility"
 rm "${mapped_folder}/${filename}-GD.fasta-e"
 rm "${mapped_folder}/${filename}-GD.fai"
 rm "${mapped_folder}/${filename}-GD.bed"
 mv "${mapped_folder}/${filename}-GD-credibility.bed" "${mapped_folder}/${filename}-GD.bed"
+mv "${mapped_folder}/${filename}-GD-blast.sorted" "${mapped_folder}/${filename}-GD.blast"
 
 # Concatenate all consensus files into one candidates file
 cat "${mapped_folder}/${filename}-GD-clusters/"*consensus > "${mapped_folder}/${filename}-GD-candidates.fasta"
