@@ -4,6 +4,7 @@
 d=100 # maximum distance accepted for a gap between 2 low coverage sequences
 min_cov=1 # minimum coverage of a position to be considered NON low coverage (in this case, only cov=0 is included in low coverages)
 min_len=1000 # minimum length for a low-coverage sequence to be included in the output
+min_bitscore=1000 # minimum bitscore in the BLAST alignment to consider the sequences part of the same cluster
 
 # Initialize variables
 fastq_set=0
@@ -28,6 +29,7 @@ while [[ "$#" -gt 0 ]]; do
         --d) d="$2"; shift ;;
         --min_cov) min_cov="$2"; shift ;;
         --min_len) min_len="$2"; shift;;
+        --min_bitscore) min_bitscore="$2"; shift;;
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
     shift
@@ -93,7 +95,7 @@ if [[ ! -s "${mapped_folder}/${filename}-GD.fasta" ]]; then
 fi
 
 blastn -query "${mapped_folder}/${filename}-GD.fasta" -subject "${mapped_folder}/${filename}-GD.fasta" -out "${mapped_folder}/${filename}-GD.tmp.blast"  -outfmt 6
-awk '($12) >= 1000' "${mapped_folder}/${filename}-GD.tmp.blast" > "${mapped_folder}/${filename}-GD.blast"
+awk '($12) >= '"${min_bitscore}" "${mapped_folder}/${filename}-GD.tmp.blast" > "${mapped_folder}/${filename}-GD.blast"
 rm "${mapped_folder}/${filename}-GD.tmp.blast"
 mkdir "${mapped_folder}/${filename}-GD-clusters/"
 echo "Finding repetitive sequences..."
@@ -122,7 +124,7 @@ do
 done
 
 rm "${mapped_folder}/${filename}-GD-flanking.bed"
-rm "${mapped_folder}/${filename}.sorted.bam.bai"
+#rm "${mapped_folder}/${filename}.sorted.bam.bai"
 rm "${mapped_folder}/${filename}-GD.blast"
 rm "${mapped_folder}/${filename}-GD-flanking.bedgraph"
 rm "${mapped_folder}/${filename}-GD-flanking.credibility"
@@ -130,7 +132,7 @@ rm "${mapped_folder}/${filename}-GD.fasta-e"
 rm "${mapped_folder}/${filename}-GD.fai"
 rm "${mapped_folder}/${filename}-GD.bed"
 mv "${mapped_folder}/${filename}-GD-credibility.bed" "${mapped_folder}/${filename}-GD.bed"
-mv "${mapped_folder}/${filename}-GD-blast.sorted" "${mapped_folder}/${filename}-GD.blast"
+mv "${mapped_folder}/${filename}-GD.blast.sorted" "${mapped_folder}/${filename}-GD.blast"
 
 # Concatenate all consensus files into one candidates file
 cat "${mapped_folder}/${filename}-GD-clusters/"*consensus > "${mapped_folder}/${filename}-GD-candidates.fasta"
