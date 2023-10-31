@@ -59,7 +59,7 @@ or explore your findings:
   included in the output files. **Default = 1000**
 - `--min_cov` -\> Set the minimum coverage. Below that, a position is
   considered to be “low-coverage” and will be included in the next
-  steps. **Default = 2**
+  steps. **Default = 1**
 - `--d` -\> Set the maximum distance between two low-coverage regions to
   be merged. If the distance between the two regions is below **d**, the
   two regions will be merged. Increasing this distance could create
@@ -77,7 +77,7 @@ already mapped file as input to save time.
 
 Example call:
 
-    bash main.sh --bam reads.sorted.bam --fa assembly.fa --of folder_path --t 5
+    bash main.sh --bam reads.sorted.bam --fa assembly.fa --of folder_path --t 20
 
 ### Call GenomeDelta giving multiple FASTQ/BAM files as input
 
@@ -139,6 +139,12 @@ to adjust the extension”fa” to “fasta” based on the assemblies names.
   than `--min_cov` (default = 2) and longer than `--min_len` (default =
   1000 bases), merged together if their distance is lower than `--d`
   (default = 100 bases).
+
+- `GD-non_rep.fasta` -\> Subset of the `GD.fasta` file containing only
+  sequences which were not included in the repetitive clusters, so
+  either non repetitive sequences, huge gaps (\>25.000 bp) or sequences
+  which have some similarity with a repetitive clusters but with
+  dimensions bigger the the rest of the cluster.
 
 - `GD.bed` -\> Chromosome, starting and ending positions of the
   sequences collected in `GD.fasta`.
@@ -202,6 +208,17 @@ have an impact on the purity of the results.
   contaminations from other organisms). The quality of the long read
   assembly is thus crucial for a smooth **GenomeDelta** run.
 
+## Credibility scores
+
+Each extracted sequence has its own credibility score, calculated as the
+proportion between the coverage of the 10kb flanking regions and the
+overall mean coverage. The minimum score is 0, while a credibility score
+close to 1 or above 1 is highly rated. The credibility scores are
+included in the FASTA name of the sequences, which is in the format
+**chr:start-end-credibility**. The credibility score assigned to the
+repetitive clusters is the average credibility scores of the sequences
+in the cluster.
+
 # Step-by-step explanation of GenomeDelta’s workflow
 
 1)  Mapping the FASTQ old genome to the FASTA recent assembly (tools:
@@ -212,10 +229,10 @@ have an impact on the purity of the results.
 
 3)  Calls the script `bam2fasta`, which:
 
-- extracts the low coverage regions of the bam file (coverage \<2,
-  meaning only regions with 0 and 1 coverage will be extracted), which
-  are the sequences absent from the old genome but present in the new
-  one. The output of this step is the **low_coverage.bedgraph** file
+- extracts the low coverage regions of the bam file (with default
+  coverage \<1, meaning only regions with 0 coverage will be extracted),
+  which are the sequences absent from the old genome but present in the
+  new one. The output of this step is the **low_coverage.bedgraph** file
   (tools: `samtools`, `awk`).
 - merge contiguous bases with low coverage. Then, merge adjacent
   low-coverage regions (gap permitted by default: 100 bases). This is
@@ -245,3 +262,6 @@ have an impact on the purity of the results.
 
 9)  Concatenate the consensus sequences into the final output with the
     candidates (**GD-candidates.fasta**).
+
+10) All the extracted sequences which are not included in the clusters
+    can be found in the **GD-non_rep.fasta**
