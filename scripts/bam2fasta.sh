@@ -21,8 +21,11 @@ mkdir -p "$output_folder"
 filename=$(basename "${input_bam%.bam}")
 filename=$(basename "${filename%.sorted}")
 
-# Run samtools depth and extract low-coverage positions
-samtools depth -a "$input_bam" | awk '$3 < '$min_cov > "$output_folder/${filename}-low_coverage.bedgraph"
+# Run samtools depth
+samtools depth -a "$input_bam" > "$output_folder/${filename}.bedgraph"
+
+# Filter for low coverage
+awk '$3 < '$min_cov "$output_folder/${filename}.bedgraph" > "$output_folder/${filename}-low_coverage.bedgraph"
 
 # Create low coverage TSV
 awk 'BEGIN{FS=OFS="\t"} {print $1, $2, $2}' "$output_folder/${filename}-low_coverage.bedgraph" > "$output_folder/${filename}-low_coverage.bed"
@@ -47,6 +50,7 @@ bedtools getfasta -fi "$assembly" -bed "$output_folder/${filename}-GD-credibilit
 sed -i'' -e 's/::.*$//' "$output_folder/${filename}-GD.fasta"  
 
 # Remove the temporary files
+rm "$output_folder/${filename}.bedgraph"
 rm "$output_folder/${filename}-low_coverage.bedgraph"
 rm "$output_folder/${filename}-low_coverage.bed"
 rm "$output_folder/${filename}-low_coverage_merged.bed"
