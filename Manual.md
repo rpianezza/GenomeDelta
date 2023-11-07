@@ -65,6 +65,10 @@ or explore your findings:
   two regions will be merged. Increasing this distance could create
   artifacts and chimeric sequences, but could find more fragmented
   regions (es. re-invading TEs). **Default = 100**.
+- `--min_bitscore` -\> to find repetitive clusters, GD is using BLAST.
+  The output is filtered based on the **bitscore** value, with default
+  set to 1000 to only consider high quality alignments. If you want to
+  find small sequences, you may want to decrease this parameter.
 
 ### Call GenomeDelta giving a BAM file as input
 
