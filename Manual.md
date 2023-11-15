@@ -22,7 +22,13 @@ for non-model species.
 First, you need to create the **conda environment** to install all the
 necessary packages. Use the `set-env.yml` file.
 
-    conda env create -f set-env.yml
+If you are using a MacOS machine:
+
+    conda env create -f macOS/set-env-MAC.yml
+
+If you are using a Linux machine:
+
+    conda-env create -f linux/set-env-linux.yml
 
 Then, before calling GenomeDelta, activate the environment:
 
@@ -31,7 +37,9 @@ Then, before calling GenomeDelta, activate the environment:
 # Call GenomeDelta
 
 After you are sure to be into the GenomeDelta conda environment, you can
-call the main script. Example call in the UNIX command line:
+call the main script. The main script is located in the folder **Linux**
+or **macOS**, use the one you need. Example call in the UNIX command
+line:
 
     bash main.sh --fq reads.fastq.gz --fa assembly.fa --of folder_path --t 20
 
