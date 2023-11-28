@@ -13,3 +13,4 @@ dependencies:
   - muscle=3.8.1551
   - r=4.1
   - r-tidyverse
+  - r-argparse
