@@ -1,7 +1,7 @@
 GenomeDelta - Manual
 ================
 
-# Purpose of GenomeDelta
+## Purpose of GenomeDelta
 
 **GenomeDelta** is a software designed to unravel the mysteries of
 genome evolution in a species. By comparing an older genome (in FASTQ or
@@ -17,9 +17,9 @@ reference library of transposons to identify the novel invaders.
 Reference libraries are often incomplete and hard to build, especially
 for non-model species.
 
-# Install GenomeDelta
+## Install GenomeDelta
 
-## MacOS
+### MacOS
 
 If you are using a MacOS machine, download the `setup.sh` file only
 from:
@@ -34,7 +34,7 @@ From the Application folder, call the downloaded `setup.sh` file:
 
     bash ../Downloads/setup.sh
 
-## Linux
+### Linux
 
 Download the whole GD folder using git clone:
 
@@ -46,7 +46,7 @@ machine:
 
     conda-env create -f linux/set-env-linux.yml
 
-# Call GenomeDelta
+## Call GenomeDelta
 
 Activate the conda environment:
 
@@ -75,7 +75,7 @@ Remember to index the FASTA assembly before!
 
     bwa index assembly.fa
 
-## Optional arguments
+### Optional arguments
 
 **GenomeDelta** also has some other options, that can be used to refine
 or explore your findings:
@@ -95,7 +95,7 @@ or explore your findings:
   set to 1000 to only consider high quality alignments. If you want to
   find small sequences, you may want to decrease this parameter.
 
-## Call GenomeDelta giving a BAM file as input
+### Call GenomeDelta giving a BAM file as input
 
 **GenomeDelta** allows the user to give directly the **BAM** file as
 input, instead of the **FASTQ**. These two arguments are mutually
@@ -108,7 +108,7 @@ Example call:
 
     bash main.sh --bam reads.sorted.bam --fa assembly.fa --of folder_path --t 20
 
-## Call GenomeDelta giving multiple FASTQ/BAM files as input
+### Call GenomeDelta giving multiple FASTQ/BAM files as input
 
 To iterate over multiple **FASTQ** or **BAM** files in a folder and run
 **GenomeDelta** on all of them against a single assembly, you can use
@@ -125,7 +125,7 @@ For **BAM** (sorted):
 These commands will generate a separate folder for each of the input
 files, named as the input file basename.
 
-## Call GenomeDelta giving multiple FASTA assemblies as input
+### Call GenomeDelta giving multiple FASTA assemblies as input
 
 To iterate over multiple **FASTA assemblies** and run **GenomeDelta** on
 all of them against a single FASTQ file, you can use this loop
@@ -140,7 +140,7 @@ structure:
 This command will generate a separate folder for each of the assemblies,
 named as the assembly file basename.
 
-## Call GenomeDelta giving multiple FASTQ/BAM files as well as multiple FASTA assemblies as input
+### Call GenomeDelta giving multiple FASTQ/BAM files as well as multiple FASTA assemblies as input
 
 To iterate over multiple **FASTA assemblies** and run **GenomeDelta** on
 all of them against multiple FASTQ files, you can use this double loop
@@ -162,7 +162,7 @@ assembly file basename separated by “\_“. You can change this loop to
 make it iterate over BAM files instead of FASTQ. Note that you may need
 to adjust the extension”fa” to “fasta” based on the assemblies names.
 
-# Output files
+## Output files
 
 - `GD.fasta` -\> FASTA containing all the sequences with coverage lower
   than `--min_cov` (default = 2) and longer than `--min_len` (default =
@@ -195,7 +195,7 @@ to adjust the extension”fa” to “fasta” based on the assemblies names.
   - the **consensus** sequence of the cluster, then concatenated with
     the other consensus into the **candidates.fasta** output.
 
-# Interpreting the results and potential issues
+## Interpreting the results and potential issues
 
 The main output file for repetitive sequences is `GD-candidates.fasta`,
 which represents a list of candidates invaders in the time range going
@@ -248,7 +248,7 @@ included in the FASTA name of the sequences, which is in the format
 repetitive clusters is the average credibility scores of the sequences
 in the cluster.
 
-# Step-by-step explanation of GenomeDelta’s workflow
+## Step-by-step explanation of GenomeDelta’s workflow
 
 1)  Mapping the FASTQ old genome to the FASTA recent assembly (tools:
     `bwa-mem`).
