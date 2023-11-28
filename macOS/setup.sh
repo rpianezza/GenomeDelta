@@ -20,7 +20,9 @@ python -m pip install pyinstaller
 pyinstaller launcher.py --onefile --name GenomeDelta
 
 # Copy the executable file to the conda environment's bin directory
-mv dist/GenomeDelta "$conda_bin_path"
+cp dist/GenomeDelta "$conda_bin_path"
+cp main.sh "$conda_bin_path"
+cp -r scripts "$conda_bin_path"
 
 # Print information about the setup
 echo "Setup complete. Type "conda activate GenomeDelta" to activate the environment."
