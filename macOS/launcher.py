@@ -1,15 +1,13 @@
 import os
 import subprocess
 import sys
-import argparse
-
-# Parse command-line arguments
-parser = argparse.ArgumentParser(description="GenomeDelta launcher")
-parser.add_argument("--main", help="Path to main file")
-args = parser.parse_args()
 
 if __name__ == "__main__":
-    script_path = args.main
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Construct the absolute path to "main.sh"
+    script_path = os.path.join(script_dir, "main.sh")
 
     # Give execute permission and run the script with arguments
     subprocess.call(["chmod", "+x", script_path])

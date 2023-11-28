@@ -15,12 +15,9 @@ conda activate GenomeDelta
 # Get the path to the conda environment's bin directory
 conda_bin_path=$(conda info --envs | grep "^GenomeDelta " | awk '{print $NF}')/bin
 
-# Get the path to "main.sh"
-main_script_path=$(pwd)/main.sh
-
 # Create the executable file
 python -m pip install pyinstaller
-pyinstaller --onefile --name GenomeDelta launcher.py -- --main "$main_script_path"
+pyinstaller launcher.py --onefile --name GenomeDelta
 
 # Copy the executable file to the conda environment's bin directory
 mv dist/GenomeDelta "$conda_bin_path"
