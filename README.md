@@ -4,8 +4,8 @@ GenomeDelta - Manual
 # Purpose of GenomeDelta
 
 **GenomeDelta** is a software designed to unravel the mysteries of
-genome evolution in a species. By comparing an older genome (in FASTQ
-format) with a more recent assembly (in FASTA format) of the same
+genome evolution in a species. By comparing an older genome (in FASTQ or
+BAM format) with a more recent assembly (in FASTA format) of the same
 species, **GenomeDelta** swiftly identifies novel genetic elements
 present in the new assembly, but absent in the older genome.
 
@@ -17,31 +17,48 @@ reference library of transposons to identify the novel invaders.
 Reference libraries are often incomplete and hard to build, especially
 for non-model species.
 
-# Set the GenomeDelta conda environment
+# Install GenomeDelta
+
+## MacOS
+
+If you are using a MacOS machine, download the `setup.sh` file only
+from:
+<https://github.com/rpianezza/GenomeDelta/blob/main/macOS/setup.sh>
+
+Open a terminal and move to the folder where you want to install GD, for
+example the Applications folder:
+
+    cd Applications
+
+From the Application folder, call the downloaded `setup.sh` file:
+
+    bash ../Downloads/setup.sh
+
+## Linux
+
+Download the whole GD folder using git clone:
+
+    git clone https://github.com/rpianezza/GenomeDelta.git
 
 First, you need to create the **conda environment** to install all the
-necessary packages. Use the `set-env.yml` file.
-
-If you are using a MacOS machine:
-
-    conda env create -f macOS/set-env-MAC.yml
-
-If you are using a Linux machine:
+necessary packages. Use the `set-env.yml` file. If you are using a Linux
+machine:
 
     conda-env create -f linux/set-env-linux.yml
 
-Then, before calling GenomeDelta, activate the environment:
+# Call GenomeDelta
+
+Activate the conda environment:
 
     conda activate GenomeDelta
 
-# Call GenomeDelta
-
 After you are sure to be into the GenomeDelta conda environment, you can
-call the main script. The main script is located in the folder **Linux**
-or **macOS**, use the one you need. Example call in the UNIX command
-line:
+just type GenomeDelta (MacOS) or call the main script writing the path
+(Linux).
 
-    bash main.sh --fq reads.fastq.gz --fa assembly.fa --of folder_path --t 20
+Example call:
+
+    GenomeDelta --fq reads.fastq.gz --fa assembly.fa --of folder_path --t 20
 
 The above call is composed of:
 
@@ -58,7 +75,7 @@ Remember to index the FASTA assembly before!
 
     bwa index assembly.fa
 
-### Optional arguments
+## Optional arguments
 
 **GenomeDelta** also has some other options, that can be used to refine
 or explore your findings:
@@ -78,7 +95,7 @@ or explore your findings:
   set to 1000 to only consider high quality alignments. If you want to
   find small sequences, you may want to decrease this parameter.
 
-### Call GenomeDelta giving a BAM file as input
+## Call GenomeDelta giving a BAM file as input
 
 **GenomeDelta** allows the user to give directly the **BAM** file as
 input, instead of the **FASTQ**. These two arguments are mutually
@@ -91,7 +108,7 @@ Example call:
 
     bash main.sh --bam reads.sorted.bam --fa assembly.fa --of folder_path --t 20
 
-### Call GenomeDelta giving multiple FASTQ/BAM files as input
+## Call GenomeDelta giving multiple FASTQ/BAM files as input
 
 To iterate over multiple **FASTQ** or **BAM** files in a folder and run
 **GenomeDelta** on all of them against a single assembly, you can use
@@ -108,7 +125,7 @@ For **BAM** (sorted):
 These commands will generate a separate folder for each of the input
 files, named as the input file basename.
 
-### Call GenomeDelta giving multiple FASTA assemblies as input
+## Call GenomeDelta giving multiple FASTA assemblies as input
 
 To iterate over multiple **FASTA assemblies** and run **GenomeDelta** on
 all of them against a single FASTQ file, you can use this loop
@@ -123,7 +140,7 @@ structure:
 This command will generate a separate folder for each of the assemblies,
 named as the assembly file basename.
 
-### Call GenomeDelta giving multiple FASTQ/BAM files as well as multiple FASTA assemblies as input
+## Call GenomeDelta giving multiple FASTQ/BAM files as well as multiple FASTA assemblies as input
 
 To iterate over multiple **FASTA assemblies** and run **GenomeDelta** on
 all of them against multiple FASTQ files, you can use this double loop
