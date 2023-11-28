@@ -11,3 +11,5 @@ dependencies:
   - bwa=0.7.17
   - blast=2.6.0
   - muscle=3.8.1551
+  - r=4.2.1
+  - r-tidyverse

@@ -136,3 +136,6 @@ mv "${mapped_folder}/${filename}-GD.blast.sorted" "${mapped_folder}/${filename}-
 
 # Concatenate all consensus files into one candidates file
 cat "${mapped_folder}/${filename}-GD-clusters/"*consensus > "${mapped_folder}/${filename}-GD-candidates.fasta"
+samtools faidx "${mapped_folder}/${filename}-GD-candidates.fasta"
+samtools faidx "${mapped_folder}/${filename}-GD-non_rep.fasta"
+Rscript "$current_dir/scripts/visualization.R" --rep "${mapped_folder}/${filename}-GD-candidates.fasta.fai" --nonrep "${mapped_folder}/${filename}-GD-non_rep.fasta.fai" --output1 "${mapped_folder}/${filename}-GD-candidates.png" --output2 "${mapped_folder}/${filename}-GD-non_rep.png"
