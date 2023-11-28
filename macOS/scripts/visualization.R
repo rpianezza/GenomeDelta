@@ -35,13 +35,13 @@ non_rep$cred_value <- factor(non_rep$cred_value, levels = c("low", "optimal", "e
 plot_rep <- ggplot(candidates, aes(bp, n, color=cred_value)) +
   geom_point(size=5, alpha=0.5)+
   scale_color_manual(values=c("red", "darkgreen", "purple"))+
-  labs(y="number of sequences", x="consensus length (bp)", color="credibility")+
+  labs(y="number of sequences", x="consensus length (bp)", color="coverage support")+
   geom_text(aes(label = cluster), size=3, color="black", fontface="bold")
 
 plot_nonrep <- ggplot(non_rep, aes(bp, credibility, color=cred_value)) +
   geom_point(size=5, alpha=0.5)+
   scale_color_manual(values=c("red", "darkgreen", "purple"))+
-  labs(y="credibility", x="consensus length (bp)", color="credibility")+
+  labs(y="credibility", x="consensus length (bp)", color="coverage support")+
   geom_text(data = filter(non_rep, cred_value=="optimal" & bp > 5000), aes(label = cluster), size=2, color="black", fontface="bold")
 
 # Save visualization
