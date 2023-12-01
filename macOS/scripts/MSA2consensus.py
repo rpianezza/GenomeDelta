@@ -1,5 +1,6 @@
 import argparse
 import os
+import statistics
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="")
@@ -31,7 +32,7 @@ with open(args.output+".def", 'r') as input, open(args.output, 'w') as output:
             credibility = float(line.split('-')[2])
             cred.append(credibility)
             n+=1
-    cluster_credibility = round(sum(cred)/len(cred),2)
+    cluster_credibility = round(statistics.median(cred), 2)
     output.write(">" + input_basename + "-" + str(cluster_credibility) + "-" + str(n) + "\n")
     input.seek(0)
     next(input)

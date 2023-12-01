@@ -1,5 +1,6 @@
 import argparse
 import os
+import statistics
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="")
@@ -25,12 +26,14 @@ defragment_MSA(args.MSA, args.output+".def")
 with open(args.output+".def", 'r') as input, open(args.output, 'w') as output:
     input_basename = os.path.basename(args.output)
     cred = []
+    n = 0
     for line in input:
         if line.startswith('>'):
             credibility = float(line.split('-')[2])
             cred.append(credibility)
-    cluster_credibility = round(sum(cred)/len(cred),2)
-    output.write(">" + input_basename + "-" + str(cluster_credibility) + "\n")
+            n+=1
+    cluster_credibility = round(statistics.median(cred), 2)
+    output.write(">" + input_basename + "-" + str(cluster_credibility) + "-" + str(n) + "\n")
     input.seek(0)
     next(input)
     sequence_length = len(next(input).strip())
