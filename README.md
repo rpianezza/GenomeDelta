@@ -94,6 +94,13 @@ or explore your findings:
   The output is filtered based on the **bitscore** value, with default
   set to 1000 to only consider high quality alignments. If you want to
   find small sequences, you may want to decrease this parameter.
+- `--refine` -\> if the option “refine” is activated, GD will run as
+  normal but in the end will try to merge clusters which insertions are
+  close to each other. To activate the “refine” option, simply type
+  “–refine” at the end of a normal GD call.
+- `--refine_d` -\> only if the “refine” option is activated, you can
+  specify the maximum distance at which GD will try to match insertions
+  in two clusters. **Default = 2500**.
 
 ### Call GenomeDelta giving a BAM file as input
 
