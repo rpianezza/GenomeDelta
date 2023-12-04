@@ -42,6 +42,7 @@ awk '($3 - $2) >= '$min_len "$output_folder/${filename}-low_coverage_merged.bed"
 
 # Assign credibility to each sequence based on genomic context coverage
 current_dir=$(dirname "$(readlink -f "$0")")
+echo "Calculating coverage support for each gap"
 bash "$current_dir/credibility.sh" "$output_folder/${filename}-GD.bed" "$output_folder/${filename}.bedgraph" "$input_bam" "$assembly" "$output_folder"
 python "$current_dir/credibility.py" "$output_folder/${filename}-GD.bed" "$output_folder/${filename}-GD-flanking.credibility" "$output_folder/${filename}-GD.fai"
 
@@ -50,7 +51,6 @@ bedtools getfasta -fi "$assembly" -bed "$output_folder/${filename}-GD-credibilit
 sed -i'' -e 's/::.*$//' "$output_folder/${filename}-GD.fasta"  
 
 # Remove the temporary files
-rm "$output_folder/${filename}.bedgraph"
 rm "$output_folder/${filename}-low_coverage.bedgraph"
 rm "$output_folder/${filename}-low_coverage.bed"
 rm "$output_folder/${filename}-low_coverage_merged.bed"
