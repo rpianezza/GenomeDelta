@@ -37,8 +37,8 @@ def extract_credibility(interval, cred):
         for line in credibility_file:
             if (line.split(' ')[0]==interval[0]) and (line.split(' ')[1]==interval[1]) and (line.split(' ')[2]==interval[2]):
                 credibility = round(float(line.split(' ')[4]),2)
-    #if credibility == 0:
-        #print("Flanking interval not found for " + str(interval) + " (maybe is telomeric?)")
+            #if credibility == 0:
+                #print("Flanking interval not found for " + str(interval) + " (maybe is telomeric?)")
     return credibility
 
 output_file_name = args.bed.replace('.bed', '-credibility.bed')

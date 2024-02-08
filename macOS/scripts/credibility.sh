@@ -20,11 +20,17 @@ filename=$(basename "${bed%.bed}")
 samtools faidx "$fasta_genome" && mv "$fasta_genome.fai" "$output_folder/${filename}.fai"
 
 # Slop 10,000 nucleotides before the regions
-bedtools flank -i "$bed" -g "$output_folder/${filename}.fai" -b 10000 |
+#bedtools flank -i "$bed" -g "$output_folder/${filename}.fai" -b 10000 |
+#awk -F'\t' -v OFS='\t' '{$2 = ($2 == 0 ? 1 : $2); print}' |
+#bedtools sort -i - > "$output_folder/${filename}-flanking.bed"
+
+#bedtools coverage -sorted -g "$output_folder/${filename}.fai" -a "$output_folder/${filename}-flanking.bed" -b "$bam" -mean > "$output_folder/${filename}-flanking.bedgraph"
+
+bedtools flank -i "$output_folder/${filename}.bed" -g "$output_folder/${filename}.fai" -b 10000 |
 awk -F'\t' -v OFS='\t' '{$2 = ($2 == 0 ? 1 : $2); print}' |
 bedtools sort -i - > "$output_folder/${filename}-flanking.bed"
 
-bedtools coverage -sorted -g "$output_folder/${filename}.fai" -a "$output_folder/${filename}-flanking.bed" -b "$bam" -mean > "$output_folder/${filename}-flanking.bedgraph"
+samtools depth -a -b "$output_folder/${filename}-flanking.bed" "$bam" | awk 'BEGIN{OFS="\t"} {if(prev_contig==$1 && prev_end+1==$2) {sum+=$3; count+=1} else {if(prev_contig!="") print prev_contig, start, prev_end, sum/count; prev_contig=$1; start=$2-1; sum=$3; count=1} prev_end=$2} END{if(prev_contig!="") print prev_contig, start, prev_end, sum/count}' > "$output_folder/${filename}-flanking.bedgraph"
 
 # Calculate mean coverage of the whole genome
 mean_coverage_whole_genome=$(awk '{ total += $3; count++ } END { if(count > 0) print total/count }' "$bedgraph")
