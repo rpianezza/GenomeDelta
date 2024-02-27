@@ -27,13 +27,25 @@ with open(args.output+".def", 'r') as input, open(args.output, 'w') as output:
     input_basename = os.path.basename(args.output)
     cred = []
     n = 0
+    countminus = 0
+    scredibility = ""
     for line in input:
         if line.startswith('>'):
-            credibility = float(line.split('-')[2])
+            for letter in line:
+                if letter=="_":
+                    countminus+=1
+                elif countminus == 1:
+                    scredibility = scredibility + str(letter)
+            credibility = float(scredibility)
+            countminus = 0
+            scredibility = ""
+            #print(credibility)
             cred.append(credibility)
             n+=1
-    cluster_credibility = round(statistics.median(cred), 2)
-    output.write(">" + input_basename + "-" + str(cluster_credibility) + "-" + str(n) + "\n")
+    #print(cred)
+    cluster_credibility = round(statistics.mean(cred), 2)
+    #print(cluster_credibility)
+    output.write(">" + input_basename + "_" + str(cluster_credibility) + "_" + str(n) + "\n")
     input.seek(0)
     next(input)
     sequence_length = len(next(input).strip())
@@ -69,7 +81,6 @@ with open(args.output+".def", 'r') as input, open(args.output, 'w') as output:
             letter = "C"
             output.write("C")
         else:
-            #ten_percent = sum(count)/100*10 #print(count)
             if count[4]<(count[0]+count[1]+count[2]+count[3]):
                 b = [count[0],count[1],count[2],count[3]]
                 if max(b) == count[0]:
@@ -86,7 +97,6 @@ with open(args.output+".def", 'r') as input, open(args.output, 'w') as output:
                     output.write("C")
             else:
                 letter = "-"
-        #print(str(base) + " = " + str(count) + " ---> " + str(letter))
     output.write("\n")
 
 os.remove(args.output+".def")       

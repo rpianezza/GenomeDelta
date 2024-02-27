@@ -7,17 +7,17 @@ max_d="$3"
 assembly="$4"
 input_bam="$5"
 bedgraph="$6"
+prefix="$7"
 
 # Get the directory of the currently running shell script
 script_dir="$(dirname "$0")"
 
 for fasta_file in "$fasta_folder"/*.fasta; do
     # Extract the filename without extension
-    filename=$(basename -- "$fasta_file")
-    filename_no_extension="${filename%.*}"
+    filename="$prefix"
 
     # Remove the last part after the last underscore
-    bed_file_name="${filename_no_extension%_*}"
+    bed_file_name="${filename}"
 
     # Set the bed file path
     bed_file="$output_folder/$bed_file_name.bed"
