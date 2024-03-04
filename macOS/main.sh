@@ -116,7 +116,7 @@ filename="$prefix"
 # Run BWA-MEM to map fastq to fasta
 if [ ! -z "$fastq" ]; then
     #filename=$(basename "$fastq" .fastq.gz)
-    bwa mem -t "${thr}" "${assembly}" "${fastq}" | samtools view -bS - | samtools sort -o "${mapped_folder}/${filename}.sorted.bam" -
+    bwa mem -t "${thr}" "${assembly}" "${fastq}" | samtools view -bS -F 4 - | samtools sort -o "${mapped_folder}/${filename}.sorted.bam" -
     samtools index "${mapped_folder}/${filename}.sorted.bam"
     echo "${filename} mapped successfully to ${assembly}"
     echo "Extracting low coverage sequences from ${filename}"
