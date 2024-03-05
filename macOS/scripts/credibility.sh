@@ -18,19 +18,14 @@ prefix="$6"
 filename="$prefix"
 
 # Function to generate genome file from FASTA assembly
-samtools faidx "$fasta_genome" && mv "$fasta_genome.fai" "$output_folder/${filename}.fai"
-sort -k1,1 "$output_folder/${filename}.fai" > "$output_folder/${filename}.sorted.fai"
-mv "$output_folder/${filename}.sorted.fai" "$output_folder/${filename}.fai"
+samtools view -H "$bam" | awk '/^@SQ/ {print $2 "\t" $3}' | sed 's/SN://; s/LN://' > "$output_folder/${filename}.fai"
 
 # Slop 10,000 nucleotides before the regions
 bedtools flank -i "$output_folder/${filename}-GD.bed" -g "$output_folder/${filename}.fai" -b 10000 |
 awk -F'\t' -v OFS='\t' '{$2 = ($2 == 0 ? 1 : $2); print}' |
-bedtools sort -i - > "$output_folder/${filename}-flanking.bed"
+bedtools sort -faidx "$output_folder/${filename}.fai" -i - > "$output_folder/${filename}-flanking.bed"
 
-sort -k1,1 -k2,2n "$output_folder/${filename}-flanking.bed" > "$output_folder/${filename}-flanking.sorted.bed"
-mv "$output_folder/${filename}-flanking.sorted.bed" "$output_folder/${filename}-flanking.bed"
 bedtools coverage -sorted -a "$output_folder/${filename}-flanking.bed" -b "$bam" -mean -g "$output_folder/${filename}.fai" > "$output_folder/${filename}-flanking.bedgraph"
-
 
 # Calculate mean coverage of the whole genome
 mean_coverage_whole_genome=$(awk '{ total += $3; count++ } END { if(count > 0) print total/count }' "$bedgraph")
