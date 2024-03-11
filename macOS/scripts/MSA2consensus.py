@@ -19,7 +19,7 @@ def defragment_MSA(MSA, output):
                 output.write("\n"+line)
             else:
                 output.write(line[0:-1])
-                  
+
 
 defragment_MSA(args.MSA, args.output+".def")
 
@@ -27,24 +27,16 @@ with open(args.output+".def", 'r') as input, open(args.output, 'w') as output:
     input_basename = os.path.basename(args.output)
     cred = []
     n = 0
-    countminus = 0
+    val = 0
     scredibility = ""
     for line in input:
         if line.startswith('>'):
-            for letter in line:
-                if letter=="_":
-                    countminus+=1
-                elif countminus == 1:
-                    scredibility = scredibility + str(letter)
-            credibility = float(scredibility)
-            countminus = 0
-            scredibility = ""
-            #print(credibility)
-            cred.append(credibility)
+            last_underscore=line.split('_')[-1]
+            cred.append(float(last_underscore))
             n+=1
-    #print(cred)
+    print(cred)
     cluster_credibility = round(statistics.mean(cred), 2)
-    #print(cluster_credibility)
+    print(cluster_credibility)
     output.write(">" + input_basename + "_" + str(cluster_credibility) + "_" + str(n) + "\n")
     input.seek(0)
     next(input)
@@ -99,4 +91,4 @@ with open(args.output+".def", 'r') as input, open(args.output, 'w') as output:
                 letter = "-"
     output.write("\n")
 
-os.remove(args.output+".def")       
+os.remove(args.output+".def")
