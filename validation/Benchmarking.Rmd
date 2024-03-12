@@ -1,0 +1,167 @@
+---
+title: "Benchmarking"
+output: rmarkdown::github_document
+date: "2023-11-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+`````{r}
+library(xlsx)
+library(tidyverse)
+library(ggplot2)
+library(RFLPtools)
+theme_set(theme_bw())
+`````
+
+# Benchmarking GenomeDelta
+
+## Introduction
+To benchmark the TE detection software GenomeDelta, three recent genome assemblies of D.melanogaster were mapped against D.melanogaster accessions from different time points, namely a Harwich strain from 1967, an Oregon-R strain from 1923 and a museum sample dated to be from 1800. This specific setup was chosen, as a fairly concise timeline of TE invasions is known and well documented, allowing to compare the sequences found by GenomeDelta to the sequences of the expected TE´s.
+
+The assemblies used were TEN015 (sampled in Tenerife, Spain, 2015), STO022 (sampled in Stockholm, Sweden, 2022) and TOM007 (sampled in Tomelloso, Spain, 2015)
+
+## Testing the effect of varying maximum gap distance for different accessions
+
+Highly repetitive regions in Transposons can cause multimapping of reads to the assembly, which subsequently leads to a gap in the Transposon. Adjusting the maximum gap distance allows to bridge those regions and extract the full length Transposon sequence. However, with increasing d comes a heightened chance to create false positives. To find the optimal parameter range, all assemblies were mapped against all accessions with d=15/75/100/200. The output of interest in this case was limited to the number of non-repetitive sequences found as well as the number of created clusters for each run.
+
+Below an example for d=75
+
+``` {shell}        
+bash main.sh --fq reads.fastq.gz --fa assembly.fa --of folder_path --t 20 --d 75
+```
+
+## Comparison of found sequences to expected transposable elements
+
+Using ncbi-BLAST-2.15.0+, the sequences found by GenomeDelta were compared to the expected Transposons. As database, a custom fasta file containing ten sequences of expected Transposons was used.
+
+Exmple of how to create a custom database:
+
+``` {shell}        
+makeblastdb -in Dmel_test/new-TEs.fasta -dbtype nucl -parse_seqids
+```
+
+Example of a BLAST run:
+
+```  {shell}       
+blastn -query candidates.fasta -db Dmel_test/new-TEs.fasta -out output.txt -outfmt 6
+```
+
+##Visualization of non-repetitive sequences and effect of maximum gap distance
+``` {r}
+clus_nonrep<-read.xlsx(file = "/Users/anna/Dmel_test/Dmel-Testing.xlsx",sheetName = "Cluster and nonrep Seq")
+clus_nonrep$X.d<-as.factor(clus_nonrep$X.d)
+clus_nonrep$Old.Genome<-gsub('SRR23876583','H10',clus_nonrep$Old.Genome)
+clus_nonrep$Old.Genome<-gsub('SRR1184560','Harwich',clus_nonrep$Old.Genome)
+clus_nonrep$Old.Genome<-gsub('ERR647638','Oregon-R',clus_nonrep$Old.Genome)
+
+ggplot(data = clus_nonrep,aes(x = Old.Genome,y = X.clusters, color = X.d, fill = X.d ))+
+  geom_col(position = "dodge2")+
+  facet_wrap(.~New.Genome)+
+  labs(title = "Effect of d on the number of clusters found", y = "number of clusters" , x = "Old Genome",fill="maximum gap distance [bp]")+
+  guides(color="none")+
+  theme(axis.text.x = element_text(size = 7))
+
+ggplot(data = clus_nonrep,aes(x = Old.Genome,y = non.rep.Seq, color = X.d, fill = X.d ))+
+  geom_col(position = "dodge2")+
+  facet_wrap(.~New.Genome)+
+  labs(title = "Effect of d on the number of non-repetitive Sequences found", y = "number of clusters" , x = "Old Genome",fill="maximum gap distance [bp]")+
+  guides(color="none")+
+  theme(axis.text.x = element_text(size = 7))
+
+```
+##Visualization of found elements
+````{r}
+years<-c(1900, 1900, 1900, 1935, 1950, 1960, 1965, 1985, 1985, 2005, 2014)
+pres<-2024-years
+HT_estimates <- tibble(TE = c("Blood", "Opus", "412", "Tirant", "I-element", "Hobo", "P-element", "Spoink", "Micropia", "Souslik", "Transib"),pres,GD = c(rep("no",8),rep("yes",3)))%>%rev()
+HT_estimates$GD<-as.factor(HT_estimates$GD)
+readdata<-tibble(strain=c("TOM007","Harwich","Oregon-R","H10"),year=c(9,57,99,224),type=c("new",rep("old",3)))
+
+
+ggplot(data = HT_estimates,aes(x=pres,y=TE))+
+  geom_col(aes(fill = GD))+
+  scale_fill_manual(values = c("orange","lightblue"))+
+  scale_y_discrete(limits=rev(c("Blood","Opus","412","Tirant","I-element","Hobo","P-element","Spoink","Micropia","Souslik","Transib")))+
+  labs(title = "HTT Timeline",y="TE",x="years",fill="Discovered with GD",linetype="Type of Strain")+
+  scale_x_reverse(breaks=seq(0,220,30),labels=c("0" = "2024", "30" = "1994",
+                            "60" = "1964","90"="1934","120"="1904","150"="1874","180"="1844","210"="1814"))+
+  geom_vline(data = readdata,aes(xintercept=year,linetype=type))+
+  theme(legend.position = c(0.2,0.7))+
+  geom_vline(xintercept = 224,linetype = "dashed",color="black")+
+  geom_vline(xintercept = 99,linetype = "dashed",color="black")+
+  geom_vline(xintercept = 57,linetype = "dashed",color="black")+
+  geom_vline(xintercept = 9,linetype = "dotted",color="black")
+````
+````{r}
+newTEs<- tibble(TE = c("Blood","Opus","412","Tirant","I-element","Hobo","P-element","Spoink","Micropia","Souslik","Transib"), length=c(7410,7521,7567,8526,5371,2959,2907,5216,5360,5275,3030))
+
+ggplot(data = newTEs,aes(x=length,y=TE))+
+   geom_col(fill="grey")+
+   scale_y_discrete(limits=c("Blood","Opus","412","Tirant","I-element","Hobo","P-element","Spoink","Micropia","Souslik","Transib"))+
+   geom_segment(x=1,y=1,xend=1111,yend=1,color="lightblue",linewidth=2)+
+   geom_segment(x=2750,y=1,xend=4117,yend=1,color="cyan",linewidth=2)+
+   geom_segment(x=4024,y=1,xend=5107,yend=1,color="azure",linewidth=2)+
+   geom_segment(x=1,y=2,xend=7510,yend=2,color="lightblue",linewidth=2)+
+   geom_segment(x=1,y=3,xend=7567,yend=3,color="lightblue",linewidth=2)+
+   geom_segment(x=2,y=4,xend=2040,yend=4,color="lightblue",linewidth=2)+
+   geom_segment(x=6511,y=4,xend=8525,yend=4,color="azure",linewidth=2)+
+   geom_segment(x=1901,y=5,xend=5371,yend=5,color="lightblue",linewidth=2)+
+   geom_segment(x=1,y=6,xend=942,yend=6,color="lightblue",linewidth=2)+
+   geom_segment(x=1,y=7,xend=591,yend=7,color="lightblue",linewidth=2)+
+   geom_segment(x=2689,y=7,xend=2907,yend=7,color="lightblue",linewidth=2)+
+   geom_segment(x=1,y=8,xend=5216,yend=8,color="lightblue",linewidth=2)+
+   geom_segment(x=1,y=9,xend=4617,yend=9,color="lightblue",linewidth=2)+
+   geom_segment(x=876,y=10,xend=2487,yend=10,color="lightblue",linewidth=2)+
+   labs(title="TEN015-H10")
+
+
+
+#Sto022
+ggplot(data = newTEs,aes(x=length,y=TE))+
+  geom_col(fill="grey")+
+  scale_y_discrete(limits=c("Blood","Opus","412","Tirant","I-element","Hobo","P-element","Spoink","Micropia","Souslik","Transib"))+
+  geom_segment(x=1,y=1,xend=969,yend=1,color="lightblue",linewidth=2)+
+  geom_segment(x=6432,y=1,xend=7410,yend=1,color="lightblue",linewidth=2)+
+  geom_segment(x=2756,y=1,xend=3696,yend=1,color="azure",linewidth=2)+
+  geom_segment(x=1,y=2,xend=1066,yend=2,color="lightblue",linewidth=2)+
+  geom_segment(x=3480,y=2,xend=6594,yend=2,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=4,xend=2652,yend=4,color="lightblue",linewidth=2)+
+  geom_segment(x=4847,y=4,xend=8526,yend=4,color="lightblue",linewidth=2)+
+  geom_segment(x=2660,y=5,xend=5371,yend=5,color="lightblue",linewidth=2)+
+  geom_segment(x=526,y=6,xend=929,yend=6,color="lightblue",linewidth=2)+
+  geom_segment(x=2464,y=6,xend=2959,yend=6,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=7,xend=809,yend=7,color="lightblue",linewidth=2)+
+  geom_segment(x=2563,y=7,xend=2907,yend=7,color="lightblue",linewidth=2)+
+  geom_segment(x=1474,y=8,xend=2447,yend=8,color="lightblue",linewidth=2)+
+  geom_segment(x=3383,y=8,xend=5210,yend=8,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=8,xend=1041,yend=8,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=9,xend=4617,yend=9,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=10,xend=5275,yend=10,color="lightblue",linewidth=2)+
+  labs(title = "STO022-H10")
+
+
+ggplot(data = newTEs,aes(x=length,y=TE))+
+  geom_col(fill="grey")+
+  scale_y_discrete(limits=c("Blood","Opus","412","Tirant","I-element","Hobo","P-element","Spoink","Micropia","Souslik","Transib"))+
+  geom_segment(x=1,y=1,xend=1087,yend=1,color="lightblue",linewidth=2)+
+  geom_segment(x=7010,y=1,xend=7410,yend=1,color="cyan",linewidth=2)+
+  geom_segment(x=2671,y=1,xend=3854,yend=1,color="azure",linewidth=2)+
+  geom_segment(x=1,y=2,xend=7521,yend=2,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=3,xend=7567,yend=3,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=4,xend=8526,yend=4,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=5,xend=3195,yend=5,color="azure",linewidth=2)+
+  geom_segment(x=3324,y=5,xend=5371,yend=5,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=6,xend=899,yend=6,color="lightblue",linewidth=2)+
+  geom_segment(x=2455,y=6,xend=2959,yend=6,color="lightblue",linewidth=2)+
+  geom_segment(x=2,y=7,xend=807,yend=7,color="lightblue",linewidth=2)+
+  geom_segment(x=2584,y=7,xend=2907,yend=7,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=8,xend=350,yend=8,color="lightblue",linewidth=2)+
+  geom_segment(x=1474,y=8,xend=5210,yend=8,color="lightblue",linewidth=2)+
+  geom_segment(x=3,y=9,xend=1968,yend=9,color="lightblue",linewidth=2)+
+  geom_segment(x=3717,y=9,xend=4996,yend=9,color="lightblue",linewidth=2)+
+  geom_segment(x=1,y=10,xend=5274,yend=10,color="lightblue",linewidth=2)+
+  geom_segment(x=1935,y=11,xend=3030,yend=11,color="lightblue",linewidth=2)+
+  labs(title = "TOM007-H10")
+````
