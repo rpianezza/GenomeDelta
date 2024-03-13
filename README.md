@@ -58,11 +58,11 @@ machine).
 
 Example call (MacOS):
 
-    GenomeDelta --fq reads.fastq.gz --fa assembly.fa --of folder_path --t 20
+    GenomeDelta --fq reads.fastq.gz --fa assembly.fa --of folder_path --prefix name --t 20
 
 Example call (Linux or manual installation):
 
-    bash main.sh --fq reads.fastq.gz --fa assembly.fa --of folder_path --t 20
+    bash main.sh --fq reads.fastq.gz --fa assembly.fa --of folder_path --prefix name --t 20
 
 The above call is composed of:
 
@@ -71,6 +71,7 @@ The above call is composed of:
 - `--fq` -\> the **FASTQ** file of the “old” genome.
 - `--fa` -\> the **FASTA** file of the “new” genome (the assembly).
 - `--of` -\> the output folder.
+- `--prefix` -\> the prefix that all the output files will have.
 - `--t` -\> the number of threads that will be used to parallelize the
   slowest steps.
 
@@ -82,7 +83,7 @@ GD can also accept sorted **BAM** files as input instead of the FASTQ
 file. The BAM file should have been mapped to the same FASTA assembly
 specified in the call.
 
-    GenomeDelta --bam mapped.sorted.bam --fa assembly.fa --of folder_path --t 20
+    GenomeDelta --bam mapped.sorted.bam --fa assembly.fa --of folder_path --prefix name --t 20
 
 ## Optional arguments
 
@@ -158,7 +159,7 @@ or explore your findings:
 
 Example call:
 
-    bash main.sh --bam reads.sorted.bam --fa assembly.fa --of folder_path --t 20
+    bash main.sh --bam reads.sorted.bam --fa assembly.fa --of folder_path --prefix name --t 20
 
 ### Call GenomeDelta giving multiple FASTQ/BAM files as input
 
@@ -168,11 +169,11 @@ this one-liner structure:
 
 For **FASTQ**:
 
-    for fq_file in folder/*.fastq.gz; do base_name=$(basename "$fq_file" .fastq.gz); file="$base_name"; bash main.sh --fq "$fq_file" --fa assembly.fa --of folder_path/"$file" --t 20; done
+    for fq_file in folder/*.fastq.gz; do base_name=$(basename "$fq_file" .fastq.gz); file="$base_name"; bash main.sh --fq "$fq_file" --fa assembly.fa --of folder_path/"$file" --prefix name --t 20; done
 
 For **BAM** (sorted):
 
-    for bam_file in folder/*.sorted.bam; do base_name=$(basename "$bam_file" .sorted.bam); file="$base_name"; bash main.sh --bam "$bam_file" --fa assembly.fa --of folder_path/"$file" --t 20; done
+    for bam_file in folder/*.sorted.bam; do base_name=$(basename "$bam_file" .sorted.bam); file="$base_name"; bash main.sh --bam "$bam_file" --fa assembly.fa --of folder_path/"$file" --prefix name --t 20; done
 
 These commands will generate a separate folder for each of the input
 files, named as the input file basename.
@@ -186,7 +187,7 @@ structure:
     for fa_file in /path/to/your/fasta/files/*.fa; do
         base_name=$(basename "$fa_file" .fa)
         file="$base_name"
-        bash main.sh --fq reads.fastq.gz --fa "$fa_file" --of /path/to/output/"$file" --t 20
+        bash main.sh --fq reads.fastq.gz --fa "$fa_file" --of /path/to/output/"$file" --prefix name --t 20
     done
 
 This command will generate a separate folder for each of the assemblies,
@@ -204,7 +205,7 @@ structure:
             base_name_fa=$(basename "$fa_file" .fa)
             file="$base_name"
             file_fa="$base_name_fa"
-            bash main.sh --fq "$fq_file" --fa "$fa_file" --of /path/to/output/"$file"_"$file_fa" --t 20
+            bash main.sh --fq "$fq_file" --fa "$fa_file" --of /path/to/output/"$file"_"$file_fa" --prefix name --t 20
         done
     done
 
@@ -261,13 +262,13 @@ In general, **clusters with high credibility scores (close to 1), with a
 long consensus sequence and composed by many sequences are likely to be
 more valuable.**
 
-## Credibility scores
+## Covarage bias score
 
-Each extracted sequence has its own credibility score, calculated as the
-proportion between the coverage of the 10kb flanking regions and the
+Each extracted sequence has its own coverage bias score, calculated as
+the proportion between the coverage of the 10kb flanking regions and the
 overall mean coverage. The minimum score is 0, while a credibility score
-close to 1 or above 1 is highly rated. The credibility scores are
+close to 1 or above 1 is highly rated. The coverage bias scores are
 included in the FASTA name of the sequences, which is in the format
-**chr:start-end-credibility**. The credibility score assigned to the
-repetitive clusters is the median credibility scores of the sequences in
-the cluster.
+**chr:start-end-credibility**. The coverage bias score assigned to the
+repetitive clusters is the median coverage bias scores of the sequences
+in the cluster.
