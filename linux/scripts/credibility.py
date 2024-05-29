@@ -33,15 +33,10 @@ def find_flanking(chr, start, end, fai, bases):
 
 def extract_credibility(interval, cred):
     credibility = 0
-    raw_cred = ""
     with open(cred, 'r') as credibility_file:
         for line in credibility_file:
             if (line.split(' ')[0]==interval[0]) and (line.split(' ')[1]==interval[1]) and (line.split(' ')[2]==interval[2]):
-                raw_cred = line.split(' ')[4][0:-1]
-                credibility = raw_cred.replace(",", ".")
-                credibility = round(float(credibility),2)
-    #if credibility == 0:
-        #print("Flanking interval not found for " + str(interval) + " (maybe is telomeric?)")
+                credibility = round(float(line.split(' ')[4]),3)
     return credibility
 
 output_file_name = args.bed.replace('.bed', '-credibility.bed')
@@ -55,8 +50,8 @@ with open(args.bed, 'r') as bed_file, open(output_file_name, 'w') as output_file
         interval_right = find_flanking(chr, start, end, args.fai, 10000)
         left_credibility = extract_credibility(interval_left, args.cred)
         right_credibility = extract_credibility(interval_right, args.cred)
-        cred = round(((left_credibility + right_credibility) / 2), 2)
-        seq_name = chr + ":" + str(start) + "-" + str(end) + "-" + str(cred)
+        cred = round(((left_credibility + right_credibility) / 2), 3)
+        seq_name = chr + ":" + str(start) + "-" + str(end) + "_" + str(cred)
 
         # Append the 'cred' value as the 4th column
         new_line = f"{line.strip()}\t{seq_name}\t{cred}\n"
