@@ -2,6 +2,7 @@ name: GenomeDelta
 channels:
   - bioconda
   - conda-forge
+  - r
   - defaults
 dependencies:
   - python=3.9.18
@@ -11,3 +12,6 @@ dependencies:
   - blast
   - muscle
   - ncurses
+  - r=4.1
+  - r-tidyverse
+  - r-argparse
