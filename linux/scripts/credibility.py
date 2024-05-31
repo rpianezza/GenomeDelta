@@ -25,7 +25,7 @@ def find_flanking(chr, start, end, fai, bases):
         start_flank = end
         end_flank = end+int(bases)
         if end_flank > end_chr:
-            end_flank = end_chr 
+            end_flank = end_chr
     flanking.append(chr)
     flanking.append(str(start_flank))
     flanking.append(str(end_flank))
@@ -36,7 +36,9 @@ def extract_credibility(interval, cred):
     with open(cred, 'r') as credibility_file:
         for line in credibility_file:
             if (line.split(' ')[0]==interval[0]) and (line.split(' ')[1]==interval[1]) and (line.split(' ')[2]==interval[2]):
-                credibility = round(float(line.split(' ')[4]),3)
+                credy = line.split(' ')[4].replace(',', '.')
+                print(credy)
+                credibility = round(float(credy),3)
     return credibility
 
 output_file_name = args.bed.replace('.bed', '-credibility.bed')

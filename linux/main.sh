@@ -162,7 +162,7 @@ do
     output_standard="${fasta%.fasta}"
 
     # Run MUSCLE with input and output files
-    muscle -in "${output_standard}.fasta" -out "$output_MSA"
+    muscle -align "${output_standard}.fasta" -output "$output_MSA"
     python "$current_dir/scripts/MSA2consensus.py" "$output_MSA" "$output_consensus"
     rm "$output_MSA"
 done
