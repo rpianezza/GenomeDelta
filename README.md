@@ -62,6 +62,7 @@ Example call (MacOS):
 
 Example call (Linux or manual installation):
 
+    cd GenomeDelta/linux
     bash main.sh --fq reads.fastq.gz --fa assembly.fa --of folder_path --prefix name --t 20
 
 The above call is composed of:
@@ -101,16 +102,9 @@ or explore your findings:
   artifacts and chimeric sequences, but could find more fragmented
   regions (es. re-invading TEs). **Default = 100**.
 - `--min_bitscore` -\> to find repetitive clusters, GD is using BLAST.
-  The output is filtered based on the **bitscore** value, with default
-  set to 1000 to only consider high quality alignments. If you want to
+  The output is filtered based on the **bitscore** value, with **default
+  set to 1000** to only consider high quality alignments. If you want to
   find small sequences, you may want to decrease this parameter.
-- `--refine` -\> if the option “refine” is activated, GD will run as
-  normal but in the end will try to merge clusters which insertions are
-  close to each other. To activate the “refine” option, simply type
-  “–refine” at the end of a normal GD call.
-- `--refine_d` -\> only if the “refine” option is activated, you can
-  specify the maximum distance at which GD will try to match insertions
-  in two clusters. **Default = 2500**.
 
 ## Output files
 
@@ -239,8 +233,7 @@ mapping on at least a part of the gap. In the **GenomeDelta** output,
 you may find **different parts of the same, new TE in different
 “clusters”**, so in different FASTA entries, each representing a “clean”
 gap in the coverage divided by a high coverage region (es. a part of the
-TE very similar to the old TE, where the reads are mapping). The option
-**–refine** is designed to tackle this issue.
+TE very similar to the old TE, where the reads are mapping).
 
 Those problems could be solved by playing with the options provided by
 the software, but multiple run of **GenomeDelta** could be necessary to
@@ -261,14 +254,3 @@ have an impact on the quality of the results.
 In general, **clusters with high credibility scores (close to 1), with a
 long consensus sequence and composed by many sequences are likely to be
 more valuable.**
-
-## Covarage bias score
-
-Each extracted sequence has its own coverage bias score, calculated as
-the proportion between the coverage of the 10kb flanking regions and the
-overall mean coverage. The minimum score is 0, while a credibility score
-close to 1 or above 1 is highly rated. The coverage bias scores are
-included in the FASTA name of the sequences, which is in the format
-**chr:start-end-credibility**. The coverage bias score assigned to the
-repetitive clusters is the median coverage bias scores of the sequences
-in the cluster.
