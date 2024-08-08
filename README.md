@@ -82,7 +82,7 @@ Remember to index the FASTA assembly before the call!
 
 GD can also accept sorted **BAM** files as input instead of the FASTQ
 file. The BAM file should have been mapped to the same FASTA assembly
-specified in the call.
+specified in the call and sorted with samtools.
 
     GenomeDelta --bam mapped.sorted.bam --fa assembly.fa --of folder_path --prefix name --t 20
 
