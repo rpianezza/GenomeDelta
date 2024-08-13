@@ -37,6 +37,8 @@ folder. Then create the conda environment using the `set-env.yml`.
     git clone https://github.com/rpianezza/GenomeDelta.git
     conda env create -f set-env.yml
 
+Note that all of the dependencies needed to run GD are common bioinformatic tools and might be already installed on your machine, so creating a conda environment might not even be necessary. If you are having trouble in setting the conda environment, check the `set-env.yml` file to assess if all the dependencies are already installed on your machine, then manually install the missing ones.
+
 ### Linux
 
 Download the GD repository using git clone, then create the conda
@@ -101,7 +103,7 @@ or explore your findings:
   two regions will be merged. Increasing this distance could create
   artifacts and chimeric sequences, but could find more fragmented
   regions (es. re-invading TEs). **Default = 100**.
-- `--min_bitscore` -\> to find repetitive clusters, GD is using BLAST.
+- `--min_bitscore` -\> to find repetitive clusters, GD is using BLASTn.
   The output is filtered based on the **bitscore** value, with **default
   set to 1000** to only consider high quality alignments. If you want to
   find small sequences, you may want to decrease this parameter.
@@ -114,7 +116,7 @@ or explore your findings:
 - `GD-candidates.fasta` -\> Consensus sequences of the repetitive
   clusters. Represents a list of candidates of the invading TEs. Each
   sequence name is composed off: (i) cluster name, (ii) median
-  credibility score of the sequences in the cluster, (iii) number of
+  coverage bias of the sequences in the cluster, (iii) number of
   sequences in the cluster.
 
 ### Secondary output files
@@ -251,6 +253,6 @@ have an impact on the quality of the results.
   contaminations from other organisms). The quality of the long read
   assembly is thus crucial for a smooth **GenomeDelta** run.
 
-In general, **clusters with high credibility scores (close to 1), with a
+In general, **clusters with low coverage bias (close to 0), with a
 long consensus sequence and composed by many sequences are likely to be
 more valuable.**
