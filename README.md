@@ -149,7 +149,7 @@ or explore your findings:
 
 ## Tips & Tricks
 
-### Call GenomeDelta giving multiple FASTQ/BAM files as input
+### Call GenomeDelta giving a BAM file as input
 
 Example call:
 
