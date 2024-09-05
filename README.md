@@ -23,13 +23,15 @@ If you are using a MacOS machine, download the `setup.sh` file only
 from:
 <https://github.com/rpianezza/GenomeDelta/blob/main/macOS/setup.sh>.
 
-Double clicking on the setup file will install GD in the root folder.
+You can make the file executable with the command below, then double clicking on the setup file will install GD in the root folder.
+
+    chmod +x Downloads/setup.sh
+
 Alternatively, open a terminal and move to the folder where you want to
 install GD, for example the Applications folder. From the Application
 folder, call the downloaded `setup.sh` file:
 
     cd Applications
-    chmod +x ../Downloads/setup.sh
     bash ../Downloads/setup.sh
 
 For a **manual installation**, clone the GD repository to your local
