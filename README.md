@@ -29,6 +29,7 @@ install GD, for example the Applications folder. From the Application
 folder, call the downloaded `setup.sh` file:
 
     cd Applications
+    chmod +x ../Downloads/setup.sh
     bash ../Downloads/setup.sh
 
 For a **manual installation**, clone the GD repository to your local
