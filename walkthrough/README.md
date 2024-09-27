@@ -46,28 +46,28 @@ You can follow the run looking at the intermediate files being written
 in the specified output folder. At the end of the run, your output
 folder should contain:
 
-- **.bam** file –\> obtained by mapping the fq file to the fasta file
-- **GD.fasta** file –\> the low-coverage sequences extracted from the
+- **.bam** –\> obtained by mapping the fq file to the fasta file
+- **GD.fasta** –\> the low-coverage sequences extracted from the
   bam file
-- **GD.fai** file –\> index file obtained from the GD.fasta
-- **GD.blast** file –\> the BLASTn results obtained by aligning all of
+- **GD.fai** –\> index file obtained from the GD.fasta
+- **GD.blast** –\> the BLASTn results obtained by aligning all of
   the gaps with each other. Used to identify repetitive clusters.
-- **GD.bed** file –\> the low-coverage regions extracted from the bam
+- **GD.bed** –\> the low-coverage regions extracted from the bam
   file, in bed format
-- **candidates.fasta** and **non_rep.fasta** files –\> repetitive gaps
+- **GD-candidates.fasta** and **non_rep.fasta** files –\> repetitive gaps
   and non-repetitive gaps fasta sequences, with their respective
-  **.fai** files used for visualization. In this case, the
-  **non_rep.fasta** should be empty.
-- **.png** file –\> repetitive gaps visualization
+  **.fai** files used for visualization.
+- **GD-candidates.png** –\> repetitive gaps visualization
+- **GD-non_rep.png** -\> non-repetitive gaps visualization
 - **GD-clusters** folder –\> contains additional information on the
   repetitive clusters found, like the single consensus sequences and the
-  fasta file containing every single gap with genomic position and
+  fasta file containing every gap with genomic position and
   coverage bias score.
 
-The visualization (.png) shows a single point (0), with 30 insertions
-(y-axis) and 5000 bp (x-axis). The consensus sequence of this cluster is
-present in the **candidates.fasta** file (cluster_0), and the single
+The visualization of the repetitive gaps (GD-candidates.png) shows a single point (numbered as 0, which is just an identifier), with 25 insertions (y-axis) and around 5000 bp (x-axis). The consensus sequence of this cluster is
+present in the **GD-candidates.fasta** file (cluster_0), and the single
 insertions sequences and genomic locations can be found in the
 **GD-clusters** folder.
+We found a strong candidate for a recent horizontal transfer of transposon.
 
-We found a strong candidate for a recent HTT event.
+In the other png file (GD-non_rep.png) we find a single sequence, longer than 4000 bp and with a coverage bias close to 0 (a good sign!). This sequence deserves further investigation, as it could be a horizontally transferred gene or an endogenized virus sequence.
