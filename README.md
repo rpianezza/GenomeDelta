@@ -23,7 +23,10 @@ If you are using a MacOS machine, download the `setup.sh` file only
 from:
 <https://github.com/rpianezza/GenomeDelta/blob/main/macOS/setup.sh>.
 
-Double clicking on the setup file will install GD in the root folder.
+You can make the file executable with the command below, then double clicking on the setup file will install GD in the root folder.
+
+    chmod +x Downloads/setup.sh
+
 Alternatively, open a terminal and move to the folder where you want to
 install GD, for example the Applications folder. From the Application
 folder, call the downloaded `setup.sh` file:
@@ -35,6 +38,7 @@ For a **manual installation**, clone the GD repository to your local
 folder. Then create the conda environment using the `set-env.yml`.
 
     git clone https://github.com/rpianezza/GenomeDelta.git
+    cd macOS
     conda env create -f set-env.yml
 
 Note that all of the dependencies needed to run GD are common bioinformatic tools and might be already installed on your machine, so creating a conda environment might not even be necessary. If you are having trouble in setting the conda environment, check the `set-env.yml` file to assess if all the dependencies are already installed on your machine, then manually install the missing ones.
@@ -45,6 +49,7 @@ Download the GD repository using git clone, then create the conda
 environment using the `set-env.yml`.
 
     git clone https://github.com/rpianezza/GenomeDelta.git
+    cd linux
     conda-env create -f linux/set-env-linux.yml
 
 ## Call GenomeDelta
