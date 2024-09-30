@@ -4,10 +4,10 @@ GenomeDelta - Manual
 ## Purpose of GenomeDelta
 
 **GenomeDelta** is a software designed to discover horizontal transfer
-events in a species. By comparing an older genome (in FASTQ or BAM
-format) with a more recent assembly (in FASTA format) of the same
+events in a species. By comparing a genome (in FASTQ or BAM
+format) with an assembly (in FASTA format) of the same
 species, **GenomeDelta** identifies novel genetic elements present in
-the new assembly, but absent in the older genome.
+the assembly, but absent in the short-reads genome.
 
 Its primary focus is on detecting transposable element invasions, while
 also offering the capability to unveil other HT events and other genomic
