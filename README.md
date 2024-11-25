@@ -15,7 +15,7 @@ alterations. An enormous advantage of **GenomeDelta** when dealing with
 transposable elements is that it does not require any reference library
 of transposons to identify the novel invaders.
 
-In this manual you will find installation instructions and how to use the tool in details. A detailed walktrough can be found here: <https://github.com/rpianezza/GenomeDelta/tree/main/walkthrough>
+In this manual you will find installation instructions and how to use the tool in details. A detailed walkthrough can be found here: <https://github.com/rpianezza/GenomeDelta/tree/main/walkthrough>
 
 ## Install GenomeDelta
 
